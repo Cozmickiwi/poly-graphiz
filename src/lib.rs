@@ -75,7 +75,7 @@ pub fn draw_square(
 }
 
 pub fn scan_scene(
-    object_list: &Vec<Object>,
+    object_list: &Vec<&Object>,
     player: &Player,
     frame: &mut [u8],
     window_size: &PhysicalSize<u32>,
@@ -88,7 +88,7 @@ pub fn scan_scene(
         if obj.coords[0] > left_edge && obj.coords[0] < right_edge {
             let distance =
                 ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
-            let mut obj_cam_x_pos: u32;
+            let obj_cam_x_pos: u32;
             /*
             let hyp_angle = ((obj.coords[1] - player.y) / (obj.coords[0] - player.x))
                 .atan()
@@ -98,10 +98,8 @@ pub fn scan_scene(
                 .atan2(obj.coords[0] - player.x)
                 .cos();
             println!("{hyp_angle}");
-            obj_cam_x_pos = ((window_size.width as f32 / 2.0)
-                - ((window_size.width as f32 / 2.0) * hyp_angle))
-                as u32;
-            obj_cam_x_pos = (window_size.width as f32 * ((hyp_angle / 2.0) + 0.5)) as u32;
+            obj_cam_x_pos = (window_size.width as f32 * ((hyp_angle / 2.0) + 0.5)
+                - left_edge * window_size.width as f32) as u32;
             println!("{}", window_size.width);
             println!("{obj_cam_x_pos}");
             draw_square(
@@ -109,8 +107,8 @@ pub fn scan_scene(
                 window_size,
                 obj_cam_x_pos,
                 200,
-                (100.0 / distance) as usize,
-                (100.0 / distance) as usize,
+                (100.0 / (distance / 5.0)) as usize,
+                (100.0 / (distance / 5.0)) as usize,
                 BLUE1,
             );
         } else {

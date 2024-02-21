@@ -12,15 +12,15 @@ fn main() {
     let mut player = Player {
         fov: 60,
         half_fov: 30,
-        x: 1.0,
+        x: 2.0,
         y: 0.0,
         frustum: VF_DEFAULT,
     };
-//    player.frustum.x = 90.0;
+    //    player.frustum.x = 90.0;
     let test_object = Object {
         width: 20,
         height: 30,
-        coords: [0.0, 3.0, 1.0],
+        coords: [0.0, 8.0, 1.0],
     };
     let event_loop = EventLoop::new().unwrap();
     let builder = WindowBuilder::new()
@@ -38,9 +38,21 @@ fn main() {
         pixel[3] = 0xff; // A
     }
     let mut wasd: [bool; 4] = [false, false, false, false];
-    scan_scene(&vec![test_object], &player, pixels.frame_mut(), &window_size);
+    //    scan_scene(&vec![test_object], &player, pixels.frame_mut(), &window_size);
     event_loop
         .run(move |event, elwt| {
+            for pixel in pixels.frame_mut().chunks_exact_mut(4) {
+                pixel[0] = 255; // R
+                pixel[1] = 27; // G
+                pixel[2] = 71; // B
+                pixel[3] = 0xff; // A
+            }
+            scan_scene(
+                &vec![&test_object],
+                &player,
+                pixels.frame_mut(),
+                &window_size,
+            );
             //            print!("\r");
             //            let now = Instant::now();
             pixels.render().unwrap();
@@ -100,6 +112,14 @@ fn main() {
                     _ => {}
                 },
                 _ => (),
+            }
+            if wasd[1] {
+                player.frustum.x -= 0.01;
+            } else if wasd[3] {
+                player.x += 0.01;
+            } else if wasd[0] {
+                player.y += 0.1 * player.frustum.x.cos();
+                player.x += 0.1 * player.frustum.x.sin();
             }
             //            print!("{:?}fps", (1.0 / now.elapsed().as_secs_f32()) as u32);
         })
