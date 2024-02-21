@@ -20,6 +20,12 @@ pub struct Player {
     pub frustum: ViewingFrustum,
 }
 
+pub struct Object {
+    pub width: u16,
+    pub height: u16,
+    pub coords: [f32; 3],
+}
+
 pub const SCREEN_WIDTH: u16 = 1000;
 pub const SCREEN_HEIGHT: u16 = 600;
 //const HALF_HEIGHT: u16 = 450;
@@ -29,8 +35,8 @@ pub const VF_DEFAULT: ViewingFrustum = ViewingFrustum {
     x: 0.0,
     y: 0.0,
     z: 0.0,
-    base_width: 1.0,
-    base_height: 0.6,
+    base_width: 4.0,
+    base_height: 2.4,
 };
 
 //const TESTCOLOR: [u8; 4] = [0, 27, 71, 0];
@@ -52,7 +58,7 @@ pub fn draw_square(
     let mut new_y: usize;
     let mut pixel_index: usize;
     for row in (0..min(height, window_size.height as usize)).rev() {
-        for a in (0..width).step_by(4) {
+        for a in 0..width {
             new_x = x as usize + a;
             new_y = w_height as usize - (y as usize + row);
             pixel_index = (new_y * window_size.width as usize + (new_x)) * 4;
@@ -64,6 +70,51 @@ pub fn draw_square(
                 i[1] = color[1];
                 i[2] = color[2];
             }
+        }
+    }
+}
+
+pub fn scan_scene(
+    object_list: &Vec<Object>,
+    player: &Player,
+    frame: &mut [u8],
+    window_size: &PhysicalSize<u32>,
+) {
+    let half_player_width = player.frustum.base_width / 2.0;
+    for obj in object_list {
+        let player_x_rot_cos = player.frustum.x.to_radians().cos();
+        let left_edge = player.frustum.x - (half_player_width * player_x_rot_cos);
+        let right_edge = player.frustum.x + (half_player_width * player_x_rot_cos);
+        if obj.coords[0] > left_edge && obj.coords[0] < right_edge {
+            let distance =
+                ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
+            let mut obj_cam_x_pos: u32;
+            /*
+            let hyp_angle = ((obj.coords[1] - player.y) / (obj.coords[0] - player.x))
+                .atan()
+                .cos(); //.cos().round() * 360.0;
+            */
+            let hyp_angle = (obj.coords[1] - player.y)
+                .atan2(obj.coords[0] - player.x)
+                .cos();
+            println!("{hyp_angle}");
+            obj_cam_x_pos = ((window_size.width as f32 / 2.0)
+                - ((window_size.width as f32 / 2.0) * hyp_angle))
+                as u32;
+            obj_cam_x_pos = (window_size.width as f32 * ((hyp_angle / 2.0) + 0.5)) as u32;
+            println!("{}", window_size.width);
+            println!("{obj_cam_x_pos}");
+            draw_square(
+                frame,
+                window_size,
+                obj_cam_x_pos,
+                200,
+                (100.0 / distance) as usize,
+                (100.0 / distance) as usize,
+                BLUE1,
+            );
+        } else {
+            println!("Not in view!!")
         }
     }
 }

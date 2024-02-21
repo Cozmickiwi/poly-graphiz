@@ -12,9 +12,15 @@ fn main() {
     let mut player = Player {
         fov: 60,
         half_fov: 30,
-        x: 1.5,
-        y: 1.5,
+        x: 1.0,
+        y: 0.0,
         frustum: VF_DEFAULT,
+    };
+//    player.frustum.x = 90.0;
+    let test_object = Object {
+        width: 20,
+        height: 30,
+        coords: [0.0, 3.0, 1.0],
     };
     let event_loop = EventLoop::new().unwrap();
     let builder = WindowBuilder::new()
@@ -32,6 +38,7 @@ fn main() {
         pixel[3] = 0xff; // A
     }
     let mut wasd: [bool; 4] = [false, false, false, false];
+    scan_scene(&vec![test_object], &player, pixels.frame_mut(), &window_size);
     event_loop
         .run(move |event, elwt| {
             //            print!("\r");
