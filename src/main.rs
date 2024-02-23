@@ -116,10 +116,13 @@ fn main() {
             if wasd[1] {
                 player.frustum.x -= 0.01;
             } else if wasd[3] {
-                player.x += 0.01;
+                player.frustum.x += 0.01;
             } else if wasd[0] {
                 player.y += 0.1 * player.frustum.x.cos();
                 player.x += 0.1 * player.frustum.x.sin();
+            } else if wasd[2] {
+                player.y -= 0.1 * player.frustum.x.cos();
+                player.x -= 0.1 * player.frustum.x.sin();
             }
             //            print!("{:?}fps", (1.0 / now.elapsed().as_secs_f32()) as u32);
         })

@@ -85,7 +85,7 @@ pub fn scan_scene(
         let player_x_rot_cos = player.frustum.x.to_radians().cos();
         let left_edge = player.frustum.x - (half_player_width * player_x_rot_cos);
         let right_edge = player.frustum.x + (half_player_width * player_x_rot_cos);
-        if obj.coords[0] > left_edge && obj.coords[0] < right_edge {
+        if obj.coords[0] > left_edge && obj.coords[0] < right_edge && obj.coords[1] > player.y {
             let distance =
                 ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
             let obj_cam_x_pos: u32;
@@ -102,6 +102,7 @@ pub fn scan_scene(
                 - left_edge * window_size.width as f32) as u32;
             println!("{}", window_size.width);
             println!("{obj_cam_x_pos}");
+            println!("{}", player.x);
             draw_square(
                 frame,
                 window_size,
