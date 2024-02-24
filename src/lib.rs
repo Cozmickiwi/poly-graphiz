@@ -1,4 +1,4 @@
-use std::{cmp::min, f32::consts::PI, time::Instant};
+use std::cmp::min;
 
 use winit::dpi::PhysicalSize;
 
@@ -28,7 +28,6 @@ pub struct Object {
 
 pub const SCREEN_WIDTH: u16 = 1000;
 pub const SCREEN_HEIGHT: u16 = 600;
-//const HALF_HEIGHT: u16 = 450;
 pub const SCALE: u16 = 1;
 
 pub const VF_DEFAULT: ViewingFrustum = ViewingFrustum {
@@ -39,7 +38,7 @@ pub const VF_DEFAULT: ViewingFrustum = ViewingFrustum {
     base_height: 2.4,
 };
 
-//const TESTCOLOR: [u8; 4] = [0, 27, 71, 0];
+pub const TESTCOLOR: [u8; 4] = [0, 27, 71, 0];
 pub const BLUE1: [u8; 4] = [25, 122, 154, 0];
 pub const PURPLE1: [u8; 4] = [131, 60, 169, 0];
 pub const RED1: [u8; 4] = [154, 25, 70, 0];
@@ -76,23 +75,12 @@ pub fn draw_square(
 
 const HALF_FOV: f32 = 30.0;
 
-fn round_rad(rad: f32) -> f32 {
-    if rad >= 2.0 * PI {
-        return rad - 2.0 * PI;
-    } else if rad <= 0.0 {
-        return 2.0 * PI + rad;
-    } else {
-        return rad;
-    }
-}
-
 pub fn scan_scene(
     object_list: &Vec<&Object>,
     player: &Player,
     frame: &mut [u8],
     window_size: &PhysicalSize<u32>,
 ) {
-    let half_player_width = player.frustum.base_width / 2.0;
     for obj in object_list {
         println!("{}", player.frustum.x);
         let l_rad = player.frustum.x - HALF_FOV.to_radians();
@@ -101,40 +89,16 @@ pub fn scan_scene(
         println!("obj: {}", obj_angle.sin());
         println!("l: {}", l_rad.sin());
         println!("r: {}", r_rad.sin());
-        let player_x_rot_cos = player.frustum.x.to_radians().cos();
-        let left_edge = player.frustum.x - (half_player_width * player_x_rot_cos);
-        let right_edge = player.frustum.x + (half_player_width * player_x_rot_cos);
-        //if obj.coords[0] > left_edge && obj.coords[0] < right_edge
         let obj_x = r_rad.sin() - (obj_angle.sin() - l_rad.sin());
         println!("obj angle: {obj_x}");
         let obj_x2 = (window_size.width as f32 / 2.0) + ((window_size.width / 2) as f32 * obj_x);
-        //        if obj_angle.sin() > l_rad.sin() && obj_angle.sin() < r_rad.sin()
-        if obj_x2 >= 0.0 && obj_x2 < window_size.width as f32
-        /*&& obj.coords[1] > player.x */
-        {
+        if obj_x2 >= 0.0 && obj_x2 < window_size.width as f32 {
             let distance =
                 ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
-            let obj_cam_x_pos: u32;
             if (100.0 / (distance / 5.0)) + obj_x2 >= window_size.width as f32 {
                 println!("Not in view!!");
                 continue;
             }
-            /*
-            let hyp_angle = ((obj.coords[1] - player.y) / (obj.coords[0] - player.x))
-                .atan()
-                .cos(); //.cos().round() * 360.0;
-            */
-            let hyp_angle = (obj.coords[1] - player.y)
-                .atan2(obj.coords[0] - player.x)
-                .cos();
-            //            println!("{hyp_angle}");
-            obj_cam_x_pos = (window_size.width as f32 * ((hyp_angle / 2.0) + 0.5)
-                - left_edge * window_size.width as f32) as u32;
-            //            println!("{}", window_size.width);
-            //            println!("{obj_cam_x_pos}");
-            //            println!("{}", player.x);
-            //let now = Instant::now();
-
             println!("{obj_x2}");
             draw_square(
                 frame,
@@ -145,7 +109,6 @@ pub fn scan_scene(
                 (100.0 / (distance / 5.0)) as usize,
                 BLUE1,
             );
-        //      println!("{:?}", now.elapsed());
         } else {
             println!("Not in view!!")
         }
