@@ -681,6 +681,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "line_drawing"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d1478a313008a3e6c8149995e90a99ee9094034b5c5c3da1eeb81183cb61d1d"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "linux-raw-sys"
 version = "0.4.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -983,6 +992,7 @@ checksum = "22686f4785f02a4fcc856d3b3bb19bf6c8160d103f7a99cc258bddd0251dc7f2"
 name = "polygon_graphics"
 version = "0.1.0"
 dependencies = [
+ "line_drawing",
  "pixels",
  "winit",
 ]
