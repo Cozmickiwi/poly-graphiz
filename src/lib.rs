@@ -104,12 +104,14 @@ pub fn scan_scene(
         let l_rad = player.frustum.x - HALF_FOV.to_radians();
         let r_rad = player.frustum.x + HALF_FOV.to_radians();
         let obj_angle = (obj.coords[0] - player.x).atan2(obj.coords[1] - player.y);
+        /*
         println!("obj: {}", obj_angle.cos());
         println!("{l_rad}, {r_rad}");
         println!("l: {}", l_rad.sin());
         println!("r: {}", r_rad.sin());
+        */
         let obj_x = r_rad.sin() - (obj_angle.sin() - l_rad.sin());
-        println!("obj angle: {obj_x}");
+        //println!("obj angle: {obj_x}");
         let obj_x2 = (window_size.width as f32 / 2.0) + ((window_size.width / 2) as f32 * obj_x);
         if obj_x2 >= 0.0 && obj_x2 < window_size.width as f32 && obj_angle.cos() > l_rad.sin() {
             let distance =
@@ -121,6 +123,11 @@ pub fn scan_scene(
             println!("{obj_x2}");
             let corners = find_corners(obj, *rot, distance);
             draw_corners(&corners, player, frame, window_size);
+            /*
+            for i in corners {
+                let x = projection(window_size, player, i);
+                draw_square(frame, window_size, x, y, width, height, color)
+            }
 
             draw_square(
                 frame,
@@ -130,7 +137,7 @@ pub fn scan_scene(
                 (100.0 / (distance / 5.0)) as usize,
                 (100.0 / (distance / 5.0)) as usize,
                 BLUE1,
-            );
+            );*/
         } else {
             println!("Not in view!!")
         }
@@ -151,6 +158,7 @@ pub fn draw_corners(
         let r_rad = player.frustum.x + HALF_FOV.to_radians();
         let obj_angle = (point[0] - player.x).atan2(point[1] - player.y);
         let obj_x = r_rad.sin() - (obj_angle.sin() - l_rad.sin());
+        let x2 = projection(window_size, player, *point);
         let obj_x2 = (window_size.width as f32 / 2.0) + ((window_size.width / 2) as f32 * obj_x);
         if obj_x2 >= 0.0 && obj_x2 < window_size.width as f32 && obj_angle.cos() > l_rad.sin() {
             let distance = ((point[0] - player.x).powi(2) + (point[1] - player.y).powi(2)).sqrt();
@@ -163,16 +171,8 @@ pub fn draw_corners(
             } else {
                 height = 100.0 + distance;
             }
-            points.push([obj_x2 as i32, height as i32]);
-            draw_square(
-                frame,
-                window_size,
-                obj_x2 as u32,
-                height as u32,
-                5,
-                5,
-                PURPLE1,
-            );
+            points.push([x2 as i32, height as i32]);
+            draw_square(frame, window_size, x2 as u32, height as u32, 5, 5, PURPLE1);
         }
     }
     if points.len() > 1 {
@@ -241,9 +241,9 @@ pub fn find_corners(shape: &Object, rot: f32, distance: f32) -> Vec<[f32; 3]> {
     for i in 0..4 {
         base[i] = [shape.coords[0], 0.0, 0.0];
     }
-    
+
     for j in 4..8 {
-        base[j] = [shape.coords[0] - shape.width as f32 / distance, 0.0, 0.0];
+        base[j] = [shape.coords[0] + shape.width as f32, 0.0, 0.0];
     }
     //    let mut tick = 0;
     /*
@@ -257,13 +257,14 @@ pub fn find_corners(shape: &Object, rot: f32, distance: f32) -> Vec<[f32; 3]> {
         } else {
             base[x][1] = shape.coords[1];
         }
-    }
-    for a in 0..8 {
-        let new_x = base[a][0] * rot.cos() - base[a][1] * rot.sin();
-        let new_y = base[a][0] * rot.sin() + base[a][1] * rot.cos();
-        base[a][0] = new_x;
-        base[a][1] = new_y;
-    }
+    } /*
+      for a in 0..8 {
+          let new_x = (base[a][0] * rot.cos()) - (base[a][1] * rot.sin());
+          let new_y = (base[a][0] * rot.sin()) + (base[a][1] * rot.cos());
+          base[a][0] = new_x;
+          base[a][1] = new_y;
+      }*/
+    println!("{:?}", base);
     base
 }
 
@@ -273,4 +274,27 @@ fn bresenham_points(p1: [i32; 2], p2: [i32; 2]) -> Vec<[i32; 2]> {
         points.push([x, y]);
     }
     points
+}
+const CAM: [f32; 3] = [0.0, 0.0, 0.0];
+const POINT: [f32; 3] = [11.0, 10.0, 20.0];
+//const SCREEN_WIDTH: u16 = 1000;
+//const SCALE: f32 = 0.5;
+fn projection(window_size: &PhysicalSize<u32>, player: &Player, coords: [f32; 3]) -> u32 {
+    let distance = ((coords[0] - player.x).powi(2) + (coords[1] - player.y).powi(2)).sqrt();
+    let angle = distance.atan2(coords[0] - player.x);
+    //    println!("angle: {angle}");
+
+    let obj_angle = coords[0].atan2(distance);
+    let projected_x = ((window_size.width as f32 * angle) * 0.5) as u32 + (window_size.width / 2);
+    let half_fov = (player.half_fov as f32).to_radians();
+    let angle_sin = (obj_angle - player.frustum.x);
+    //println!("sin: {angle_sin}");
+    //println!("corner angle: {}, camera angle: {}", angle, player.frustum.x);
+    let new_x = (window_size.width / 2) + (((window_size.width / 2) as f32 * angle_sin) * 0.5) as u32;
+    //let new_x = (window_size.width as f32 * (((obj_angle - player.frustum.x).sin()) - 0.5)) as u32;
+    //let new_x = (window_size.width as f32 * (angle - ))
+    //    let total_hyp = (distance.powi(2) + (POINT[2] - CAM[2]).powi(2)).sqrt();
+    //projected_x
+    println!("{new_x}");
+    new_x
 }

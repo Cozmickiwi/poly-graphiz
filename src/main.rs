@@ -22,14 +22,14 @@ fn main() {
     let test_object = Object {
         width: 5,
         height: 30,
-        coords: [0.0, 8.0, 1.0],
+        coords: [3.0, 8.0, 1.0],
     };
     let test_object2 = Object {
         width: 25,
         height: 25,
         coords: [1.0, -11.0, 1.0],
     };
-    let mut rot: f32 = 0.0;
+    let mut rot: f32 = -1.0;
     //let test_object_corners = find_corners(&test_object, rot.to_radians());
     //println!("{:?}", test_object_corners);
     let event_loop = EventLoop::new().unwrap();
@@ -57,11 +57,11 @@ fn main() {
                 pixel[2] = 71; // B
                 pixel[3] = 0xff; // A
             }
-            /*
-            rot += 0.0001; 
-            if rot >= 360.0 {
+            
+            rot += 0.001; 
+            if rot >= 1.0 || rot <= -1.0 {
                 rot = 0.0;
-            }*/
+            }
             scan_scene(
                 &vec![&test_object],
                 &player,
