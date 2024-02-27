@@ -18,7 +18,6 @@ fn main() {
         y: 0.0,
         frustum: VF_DEFAULT,
     };
-    //    player.frustum.x = 90.0;
     let test_object = Object {
         width: 5,
         height: 30,
@@ -30,8 +29,6 @@ fn main() {
         coords: [1.0, -11.0, 1.0],
     };
     let mut rot: f32 = -1.0;
-    //let test_object_corners = find_corners(&test_object, rot.to_radians());
-    //println!("{:?}", test_object_corners);
     let event_loop = EventLoop::new().unwrap();
     let builder = WindowBuilder::new()
         .with_inner_size(LogicalSize::new(SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -48,7 +45,6 @@ fn main() {
         pixel[3] = 0xff; // A
     }
     let mut wasd: [bool; 4] = [false, false, false, false];
-    //    scan_scene(&vec![test_object], &player, pixels.frame_mut(), &window_size);
     event_loop
         .run(move |event, elwt| {
             for pixel in pixels.frame_mut().chunks_exact_mut(4) {
@@ -57,8 +53,7 @@ fn main() {
                 pixel[2] = 71; // B
                 pixel[3] = 0xff; // A
             }
-            
-            rot += 0.001; 
+            rot += 0.001;
             if rot >= 1.0 || rot <= -1.0 {
                 rot = 0.0;
             }
@@ -68,15 +63,7 @@ fn main() {
                 pixels.frame_mut(),
                 &window_size,
                 &rot,
-            );/*
-            draw_corners(
-                &test_object_corners,
-                &player,
-                pixels.frame_mut(),
-                &window_size,
-            );*/
-            //            print!("\r");
-            //            let now = Instant::now();
+            );
             pixels.render().unwrap();
             match event {
                 Event::WindowEvent {
@@ -152,7 +139,6 @@ fn main() {
                 player.y -= 0.1 * player.frustum.x.cos();
                 player.x -= 0.1 * player.frustum.x.sin();
             }
-            //            print!("{:?}fps", (1.0 / now.elapsed().as_secs_f32()) as u32);
         })
         .unwrap();
 }

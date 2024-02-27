@@ -1,5 +1,4 @@
 use std::cmp::min;
-
 use line_drawing::Bresenham;
 use winit::dpi::PhysicalSize;
 
@@ -104,14 +103,7 @@ pub fn scan_scene(
         let l_rad = player.frustum.x - HALF_FOV.to_radians();
         let r_rad = player.frustum.x + HALF_FOV.to_radians();
         let obj_angle = (obj.coords[0] - player.x).atan2(obj.coords[1] - player.y);
-        /*
-        println!("obj: {}", obj_angle.cos());
-        println!("{l_rad}, {r_rad}");
-        println!("l: {}", l_rad.sin());
-        println!("r: {}", r_rad.sin());
-        */
         let obj_x = r_rad.sin() - (obj_angle.sin() - l_rad.sin());
-        //println!("obj angle: {obj_x}");
         let obj_x2 = (window_size.width as f32 / 2.0) + ((window_size.width / 2) as f32 * obj_x);
         if obj_x2 >= 0.0 && obj_x2 < window_size.width as f32 && obj_angle.cos() > l_rad.sin() {
             let distance =
@@ -123,21 +115,6 @@ pub fn scan_scene(
             println!("{obj_x2}");
             let corners = find_corners(obj, *rot, distance);
             draw_corners(&corners, player, frame, window_size);
-            /*
-            for i in corners {
-                let x = projection(window_size, player, i);
-                draw_square(frame, window_size, x, y, width, height, color)
-            }
-
-            draw_square(
-                frame,
-                window_size,
-                obj_x2 as u32,
-                200,
-                (100.0 / (distance / 5.0)) as usize,
-                (100.0 / (distance / 5.0)) as usize,
-                BLUE1,
-            );*/
         } else {
             println!("Not in view!!")
         }
@@ -245,25 +222,13 @@ pub fn find_corners(shape: &Object, rot: f32, distance: f32) -> Vec<[f32; 3]> {
     for j in 4..8 {
         base[j] = [shape.coords[0] + shape.width as f32, 0.0, 0.0];
     }
-    //    let mut tick = 0;
-    /*
-    for x in (0..8).step_by(2) {
-        base[x][1] = shape.coords[1] + (shape.width as f32 / 2.0);
-        base[x + 1][1] = shape.coords[1] - (shape.width as f32 / 2.0);
-    }*/
     for x in 0..8 {
         if BASE_ALIGNED_Y.binary_search(&x).is_ok() {
             base[x][1] = shape.coords[1] + shape.width as f32;
         } else {
             base[x][1] = shape.coords[1];
         }
-    } /*
-      for a in 0..8 {
-          let new_x = (base[a][0] * rot.cos()) - (base[a][1] * rot.sin());
-          let new_y = (base[a][0] * rot.sin()) + (base[a][1] * rot.cos());
-          base[a][0] = new_x;
-          base[a][1] = new_y;
-      }*/
+    }
     println!("{:?}", base);
     base
 }
@@ -282,19 +247,12 @@ const POINT: [f32; 3] = [11.0, 10.0, 20.0];
 fn projection(window_size: &PhysicalSize<u32>, player: &Player, coords: [f32; 3]) -> u32 {
     let distance = ((coords[0] - player.x).powi(2) + (coords[1] - player.y).powi(2)).sqrt();
     let angle = distance.atan2(coords[0] - player.x);
-    //    println!("angle: {angle}");
-
     let obj_angle = coords[0].atan2(distance);
     let projected_x = ((window_size.width as f32 * angle) * 0.5) as u32 + (window_size.width / 2);
     let half_fov = (player.half_fov as f32).to_radians();
     let angle_sin = (obj_angle - player.frustum.x);
-    //println!("sin: {angle_sin}");
-    //println!("corner angle: {}, camera angle: {}", angle, player.frustum.x);
-    let new_x = (window_size.width / 2) + (((window_size.width / 2) as f32 * angle_sin) * 0.5) as u32;
-    //let new_x = (window_size.width as f32 * (((obj_angle - player.frustum.x).sin()) - 0.5)) as u32;
-    //let new_x = (window_size.width as f32 * (angle - ))
-    //    let total_hyp = (distance.powi(2) + (POINT[2] - CAM[2]).powi(2)).sqrt();
-    //projected_x
+    let new_x =
+        (window_size.width / 2) + (((window_size.width / 2) as f32 * angle_sin) * 0.5) as u32;
     println!("{new_x}");
     new_x
 }
