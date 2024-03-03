@@ -149,7 +149,7 @@ pub fn draw_corners(
                 height = 150.0 + distance;
             }
             points.push([x2 as i32, height as i32]);
-            draw_square(frame, window_size, x2 as u32, height as u32, 5, 5, PURPLE1);
+            draw_square(frame, window_size, x2 as u32 - 2, height as u32 - 2, 5, 5, PURPLE1);
         }
     }
     if points.len() > 1 {
