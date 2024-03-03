@@ -1,5 +1,5 @@
-use std::cmp::min;
 use line_drawing::Bresenham;
+use std::cmp::min;
 use winit::dpi::PhysicalSize;
 
 /// if the aspect ratio of base_width:base_height != SCREEN_WIDTH:SCREEN_HEIGHT, problems may
@@ -146,7 +146,7 @@ pub fn draw_corners(
             if ticker % 2 == 0 {
                 height = 300.0 - distance;
             } else {
-                height = 100.0 + distance;
+                height = 150.0 + distance;
             }
             points.push([x2 as i32, height as i32]);
             draw_square(frame, window_size, x2 as u32, height as u32, 5, 5, PURPLE1);
@@ -157,6 +157,9 @@ pub fn draw_corners(
             let list = bresenham_points(points[p], points[p + 1]);
             draw_bresenham(frame, window_size, list, PURPLE1);
         }
+    }
+    if points.len() < 8 {
+        return;
     }
     draw_bresenham(
         frame,
@@ -218,7 +221,6 @@ pub fn find_corners(shape: &Object, rot: f32, distance: f32) -> Vec<[f32; 3]> {
     for i in 0..4 {
         base[i] = [shape.coords[0], 0.0, 0.0];
     }
-
     for j in 4..8 {
         base[j] = [shape.coords[0] + shape.width as f32, 0.0, 0.0];
     }
@@ -228,6 +230,12 @@ pub fn find_corners(shape: &Object, rot: f32, distance: f32) -> Vec<[f32; 3]> {
         } else {
             base[x][1] = shape.coords[1];
         }
+    }
+    for a in 0..8 {
+        let new_x = base[a][0] * rot.cos() - base[a][1] * rot.sin();
+        let new_y = base[a][0] * rot.sin() + base[a][1] * rot.cos();
+        base[a][0] = new_x;
+        base[a][1] = new_y;
     }
     println!("{:?}", base);
     base
@@ -240,19 +248,19 @@ fn bresenham_points(p1: [i32; 2], p2: [i32; 2]) -> Vec<[i32; 2]> {
     }
     points
 }
-const CAM: [f32; 3] = [0.0, 0.0, 0.0];
-const POINT: [f32; 3] = [11.0, 10.0, 20.0];
-//const SCREEN_WIDTH: u16 = 1000;
-//const SCALE: f32 = 0.5;
+
 fn projection(window_size: &PhysicalSize<u32>, player: &Player, coords: [f32; 3]) -> u32 {
     let distance = ((coords[0] - player.x).powi(2) + (coords[1] - player.y).powi(2)).sqrt();
     let angle = distance.atan2(coords[0] - player.x);
     let obj_angle = coords[0].atan2(distance);
     let projected_x = ((window_size.width as f32 * angle) * 0.5) as u32 + (window_size.width / 2);
     let half_fov = (player.half_fov as f32).to_radians();
-    let angle_sin = (obj_angle - player.frustum.x);
-    let new_x =
-        (window_size.width / 2) + (((window_size.width / 2) as f32 * angle_sin) * 0.5) as u32;
-    println!("{new_x}");
+    let angle_sin = obj_angle - player.frustum.x;
+    //   let new_x =
+    //     (window_size.width / 2) + (((window_size.width / 2) as f32 * angle_sin) * 1.0) as u32;
+    let new_x = ((window_size.width / 2) as f32
+        + ((window_size.width / 2) as f32 * angle_sin.sin())) as u32;
+    println!("{}", angle_sin.sin());
+    //    println!("{new_x}");
     new_x
 }

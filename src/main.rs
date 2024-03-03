@@ -15,7 +15,7 @@ fn main() {
         fov: 60,
         half_fov: 30,
         x: 0.0,
-        y: 0.0,
+        y:-40.0,
         frustum: VF_DEFAULT,
     };
     let test_object = Object {
@@ -49,12 +49,12 @@ fn main() {
         .run(move |event, elwt| {
             for pixel in pixels.frame_mut().chunks_exact_mut(4) {
                 pixel[0] = 255; // R
-                pixel[1] = 27; // G
+                pixel[1] = 97; // G
                 pixel[2] = 71; // B
                 pixel[3] = 0xff; // A
             }
-            rot += 0.001;
-            if rot >= 1.0 || rot <= -1.0 {
+            rot += 0.005;
+            if rot >= PI * 2.0 || rot <= -(PI * 2.0) {
                 rot = 0.0;
             }
             scan_scene(
