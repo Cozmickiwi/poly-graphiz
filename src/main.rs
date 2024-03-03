@@ -21,24 +21,24 @@ fn main() {
     let test_object = Object {
         width: 5,
         height: 30,
-        coords: [3.0, 8.0, 1.0],
+        coords: [3.0, 8.0, 0.0],
     };
     let test_object2 = Object {
         width: 5,
         height: 30,
-        coords: [3.0, -8.0, 1.0],
+        coords: [3.0, -8.0, 2.0],
     };
-    /*
+
     let test_object3 = Object {
         width: 5,
         height: 30,
-        coords: [9.0, 0.0, 1.0],
-    };
-    let test_object4 = Object {
-        width: 5,
-        height: 30,
-        coords: [-3.0, 0.0, 1.0],
-    };*/
+        coords: [9.0, 0.0, -2.0],
+    }; /*
+       let test_object4 = Object {
+           width: 5,
+           height: 30,
+           coords: [-3.0, 0.0, 1.0],
+       };*/
     let mut rot: f32 = -1.0;
     let event_loop = EventLoop::new().unwrap();
     let builder = WindowBuilder::new()
@@ -70,7 +70,7 @@ fn main() {
                 rot = 0.0;
             }
             scan_scene(
-                &vec![&test_object, &test_object2],
+                &vec![&test_object3],
                 &player,
                 pixels.frame_mut(),
                 &window_size,

@@ -247,9 +247,13 @@ pub fn find_corners(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
             base[x][1] = shape.coords[1];
         }
     }
+    let center_x = shape.coords[0] + (shape.width as f32 / 2.0);
+    let center_y = shape.coords[1] + (shape.width as f32 / 2.0);
     for a in 0..8 {
-        let new_x = base[a][0] * rot.cos() - base[a][1] * rot.sin();
-        let new_y = base[a][0] * rot.sin() + base[a][1] * rot.cos();
+        let new_x =
+            center_x + (base[a][0] - center_x) * rot.cos() - (base[a][1] - center_y) * rot.sin();
+        let new_y =
+            center_y + (base[a][0] - center_x) * rot.sin() + (base[a][1] - center_y) * rot.cos();
         base[a][0] = new_x;
         base[a][1] = new_y;
     }
@@ -290,8 +294,9 @@ fn projection(
     let distance2 = (distance.powi(2) + coords[2].powi(2)).sqrt();
     let ydeg = (coords[2].atan2(distance2)).to_degrees();
     let new_y;
-    if ydeg < 45.0 && ydeg > -45.0 {
-        new_y = (window_size.height / 2) + ((window_size.height / 2) as f32 * (ydeg / 45.0)) as u32;
+    if ydeg < 35.0 && ydeg > -35.0 {
+        new_y = ((window_size.height / 2) as f32
+            + ((window_size.height / 2) as f32 * (ydeg / 35.0))) as u32;
     } else {
         return None;
     }
