@@ -12,27 +12,30 @@ use winit::{
 
 fn main() {
     let mut player = Player {
-        fov: 60,
-        half_fov: 30,
+        fov: 70,
+        half_fov: 35,
         x: 0.0,
         y: -40.0,
         frustum: VF_DEFAULT,
     };
-    let test_object = Object {
+    let mut test_object = Object {
         width: 5,
         height: 30,
-        coords: [3.0, 8.0, 0.0],
+        coords: [0.0, 8.0, 0.0],
+        animated: false,
     };
     let test_object2 = Object {
         width: 5,
         height: 30,
         coords: [3.0, -8.0, 2.0],
+        animated: false,
     };
 
     let test_object3 = Object {
         width: 5,
         height: 30,
-        coords: [9.0, 0.0, -2.0],
+        coords: [9.0, 3.0, -2.0],
+        animated: false,
     }; /*
        let test_object4 = Object {
            width: 5,
@@ -69,8 +72,19 @@ fn main() {
             if rot >= PI * 2.0 || rot <= -(PI * 2.0) {
                 rot = 0.0;
             }
+            if test_object.animated {
+                test_object.coords[2] += 0.05;
+                if test_object.coords[2] >= 8.0 {
+                    test_object.animated = false;
+                }
+            } else {
+                test_object.coords[2] -= 0.05;
+                if test_object.coords[2] <= -8.0 {
+                    test_object.animated = true;
+                }
+            }
             scan_scene(
-                &vec![&test_object3],
+                &vec![&test_object],
                 &player,
                 pixels.frame_mut(),
                 &window_size,

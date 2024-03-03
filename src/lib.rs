@@ -24,6 +24,7 @@ pub struct Object {
     pub width: u16,
     pub height: u16,
     pub coords: [f32; 3],
+    pub animated: bool,
 }
 
 pub const SCREEN_WIDTH: u16 = 1000;
@@ -100,6 +101,7 @@ pub fn scan_scene(
 ) {
     for obj in object_list {
         //   println!("{}", player.frustum.x);
+
         let l_rad = player.frustum.x - HALF_FOV.to_radians();
         let r_rad = player.frustum.x + HALF_FOV.to_radians();
         let obj_angle = (obj.coords[0] - player.x).atan2(obj.coords[1] - player.y);
@@ -249,14 +251,24 @@ pub fn find_corners(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
     }
     let center_x = shape.coords[0] + (shape.width as f32 / 2.0);
     let center_y = shape.coords[1] + (shape.width as f32 / 2.0);
+    // Rotation
+    let rot2 = rot * 2.0;
     for a in 0..8 {
         let new_x =
-            center_x + (base[a][0] - center_x) * rot.cos() - (base[a][1] - center_y) * rot.sin();
+            center_x + (base[a][0] - center_x) * rot2.cos() - (base[a][1] - center_y) * rot2.sin();
         let new_y =
-            center_y + (base[a][0] - center_x) * rot.sin() + (base[a][1] - center_y) * rot.cos();
+            center_y + (base[a][0] - center_x) * rot2.sin() + (base[a][1] - center_y) * rot2.cos();
         base[a][0] = new_x;
         base[a][1] = new_y;
     }
+    // Orbit
+    /*
+    for a in 0..8 {
+        let new_x = base[a][0] * rot.cos() - base[a][1] * rot.sin();
+        let new_y = base[a][0] * rot.sin() + base[a][1] * rot.cos();
+        base[a][0] = new_x;
+        base[a][1] = new_y;
+    }*/
     for i in 0..8 {
         if i % 2 == 0 {
             base[i][2] = shape.coords[2] + shape.width as f32;
