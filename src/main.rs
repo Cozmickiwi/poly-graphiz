@@ -43,6 +43,7 @@ fn main() {
     let event_loop = EventLoop::new().unwrap();
     let builder = WindowBuilder::new()
         .with_inner_size(LogicalSize::new(SCREEN_WIDTH, SCREEN_HEIGHT))
+        .with_title("poly graphiz")
         .build(&event_loop)
         .unwrap();
     event_loop.set_control_flow(winit::event_loop::ControlFlow::Poll);
