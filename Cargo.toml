@@ -9,3 +9,4 @@ edition = "2021"
 pixels = "0.13.0"
 winit = { version = "0.29.10", features = ["rwh_05"]}
 line_drawing = "1.0.0"
+nalgebra = "0.32.4"

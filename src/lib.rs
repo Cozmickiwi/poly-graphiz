@@ -1,4 +1,5 @@
 use line_drawing::Bresenham;
+use nalgebra::Vector2;
 use std::cmp::min;
 use winit::dpi::PhysicalSize;
 
@@ -227,6 +228,117 @@ pub fn draw_corners(
         bresenham_points(points[5], points[7]),
         PURPLE1,
     );
+    fill_bresenham(
+        [
+            bresenham_points(points[0], points[1]),
+            bresenham_points(points[2], points[3]),
+        ],
+        frame,
+        window_size,
+        PURPLE1,
+    );
+    fill_bresenham(
+        [
+            bresenham_points(points[0], points[2]),
+            bresenham_points(points[4], points[6]),
+        ],
+        frame,
+        window_size,
+        [0, 128, 128, 255],
+    );
+    fill_bresenham(
+        [
+            bresenham_points(points[1], points[7]),
+            bresenham_points(points[3], points[5]),
+        ],
+        frame,
+        window_size,
+        [255, 0, 255, 255],
+    );
+    fill_bresenham(
+        [
+            bresenham_points(points[0], points[6]),
+            bresenham_points(points[1], points[7]),
+        ],
+        frame,
+        window_size,
+        [0, 0, 128, 255],
+    );
+    fill_bresenham(
+        [
+            bresenham_points(points[2], points[4]),
+            bresenham_points(points[3], points[5]),
+        ],
+        frame,
+        window_size,
+        [0, 128, 0, 255],
+    );
+    fill_bresenham(
+        [
+            bresenham_points(points[4], points[5]),
+            bresenham_points(points[6], points[7]),
+        ],
+        frame,
+        window_size,
+        [128, 0, 0, 255],
+    );
+}
+
+pub fn fill_bresenham(
+    points: [Vec<[i32; 2]>; 2],
+    frame: &mut [u8],
+    window_size: &PhysicalSize<u32>,
+    color: [u8; 4],
+) {
+    let vec1: &Vec<[i32; 2]>;
+    let vec2: &Vec<[i32; 2]>;
+    let chosen_vec: usize;
+    let smaller_vec: usize;
+    if points[0].len() > points[1].len() {
+        chosen_vec = 0;
+        smaller_vec = 1;
+    } else {
+        chosen_vec = 1;
+        smaller_vec = 0;
+    }
+    vec1 = &points[chosen_vec];
+    let mut tempvec = Vec::new();
+    for i in &points[smaller_vec] {
+        let tempvec2 = [i[0] as f32, i[1] as f32];
+        tempvec.push(tempvec2);
+    }
+    let mut xvec = Vec::new();
+    let mut yvec = Vec::new();
+    for i in tempvec {
+        xvec.push(i[0]);
+        yvec.push(i[1]);
+    }
+    /*
+    let normalized_x = Vector2::from_vec(xvec).normalize() * 10.0;
+    println!("{:?}", normalized_x);
+    println!("{:?}", vec1);
+    let normalized_y = Vector2::from_vec(yvec).normalize() * vec1.len() as f32;
+    let mut new_vec: Vec<[i32; 2]> = Vec::new();
+    for j in 0..vec1.len() {
+        new_vec.push([normalized_x[j] as i32, normalized_y[j] as i32]);
+    }
+    vec2 = &new_vec;
+    */
+    let mut new_vec2 = Vec::new();
+    let scale = points[smaller_vec].len() as f32 / vec1.len() as f32;
+    for i in 0..vec1.len() {
+        let n = (i as f32 * scale) as usize;
+        new_vec2.push(points[smaller_vec][n].clone());
+    }
+    //    println!("{:?}", new_vec2);
+    for x in 0..vec1.len() {
+        draw_bresenham(
+            frame,
+            window_size,
+            bresenham_points(vec1[x], new_vec2[x]),
+            color,
+        );
+    }
 }
 
 const BASE_ALIGNED_Y: [usize; 4] = [0, 1, 6, 7];
