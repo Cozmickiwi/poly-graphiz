@@ -113,7 +113,7 @@ pub fn scan_scene(
                 continue;
             }
             println!("{obj_x2}");
-            let corners = find_corners(obj, *rot, distance);
+            let corners = find_corners(obj, *rot);
             draw_corners(&corners, player, frame, window_size);
         } else {
             println!("Not in view!!")
@@ -149,7 +149,15 @@ pub fn draw_corners(
                 height = 150.0 + distance;
             }
             points.push([x2 as i32, height as i32]);
-            draw_square(frame, window_size, x2 as u32 - 2, height as u32 - 2, 5, 5, PURPLE1);
+            draw_square(
+                frame,
+                window_size,
+                x2 as u32 - 2,
+                height as u32 - 2,
+                5,
+                5,
+                PURPLE1,
+            );
         }
     }
     if points.len() > 1 {
@@ -213,7 +221,7 @@ pub fn draw_corners(
 
 const BASE_ALIGNED_Y: [usize; 4] = [0, 1, 6, 7];
 
-pub fn find_corners(shape: &Object, rot: f32, distance: f32) -> Vec<[f32; 3]> {
+pub fn find_corners(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
     let mut base: Vec<[f32; 3]> = Vec::new();
     for _ in 0..8 {
         base.push([0.0, 0.0, 0.0]);
@@ -251,10 +259,10 @@ fn bresenham_points(p1: [i32; 2], p2: [i32; 2]) -> Vec<[i32; 2]> {
 
 fn projection(window_size: &PhysicalSize<u32>, player: &Player, coords: [f32; 3]) -> u32 {
     let distance = ((coords[0] - player.x).powi(2) + (coords[1] - player.y).powi(2)).sqrt();
-    let angle = distance.atan2(coords[0] - player.x);
+    // let angle = distance.atan2(coords[0] - player.x);
     let obj_angle = coords[0].atan2(distance);
-    let projected_x = ((window_size.width as f32 * angle) * 0.5) as u32 + (window_size.width / 2);
-    let half_fov = (player.half_fov as f32).to_radians();
+    //    let projected_x = ((window_size.width as f32 * angle) * 0.5) as u32 + (window_size.width / 2);
+    //  let half_fov = (player.half_fov as f32).to_radians();
     let angle_sin = obj_angle - player.frustum.x;
     //   let new_x =
     //     (window_size.width / 2) + (((window_size.width / 2) as f32 * angle_sin) * 1.0) as u32;

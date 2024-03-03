@@ -15,7 +15,7 @@ fn main() {
         fov: 60,
         half_fov: 30,
         x: 0.0,
-        y:-40.0,
+        y: -40.0,
         frustum: VF_DEFAULT,
     };
     let test_object = Object {
@@ -28,6 +28,7 @@ fn main() {
         height: 30,
         coords: [3.0, -8.0, 1.0],
     };
+    /*
     let test_object3 = Object {
         width: 5,
         height: 30,
@@ -37,7 +38,7 @@ fn main() {
         width: 5,
         height: 30,
         coords: [-3.0, 0.0, 1.0],
-    };
+    };*/
     let mut rot: f32 = -1.0;
     let event_loop = EventLoop::new().unwrap();
     let builder = WindowBuilder::new()
