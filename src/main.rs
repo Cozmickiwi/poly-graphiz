@@ -68,7 +68,7 @@ fn main() {
                 pixel[2] = 71; // B
                 pixel[3] = 0xff; // A
             }
-            
+
             rot += 0.01;
             if rot > PI * 2.0 {
                 rot = 0.0;
@@ -189,7 +189,6 @@ fn main() {
                 player.x -= 0.1 * player.frustum.x.cos();
                 player.y -= 0.1 * player.frustum.x.sin();
             }
-            println!("{}", player.x);
         })
         .unwrap();
 }

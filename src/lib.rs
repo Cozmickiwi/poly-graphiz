@@ -105,13 +105,10 @@ pub fn scan_scene(
         let obj_angle = (obj.coords[0] - player.x).atan2(obj.coords[1] - player.y);
         let obj_ax =
             ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
-        //        println!("{}", obj.coords[1].atan2(obj_ax).to_degrees());
-        //      println!("Cam: {}", player.frustum.x.to_degrees());
-        if (player.frustum.x - obj.coords[1].atan2(obj_ax)).sin() < -0.5
-            || (player.frustum.x - obj.coords[1].atan2(obj_ax)).sin() > 0.5
-        {
-            println!("AHBFHJ");
-            return;
+        let rel_angle =
+            (obj.coords[0] - player.x).atan2(obj.coords[1] - player.y) - player.frustum.x;
+        if rel_angle.sin() < -0.5 || rel_angle.sin() > 0.5 || rel_angle.cos() < 0.0 {
+            continue;
         }
         let ax_angle = ((window_size.width / 2) as f32
             + ((window_size.width / 2) as f32
@@ -332,7 +329,7 @@ fn projection(
     //    println!("{}", ydeg.to_radians().sin());
     //   println!("{}", distance2.atan2(coords[2]).cos());
     let x = (distance2.atan2(coords[2]) + 90.0_f32.to_radians()).sin();
-//    println!("{x}");
+    //    println!("{x}");
     /*
     if ydeg < 30.0 && ydeg > -30.0 {
         new_y = ((window_size.height / 2) as f32
