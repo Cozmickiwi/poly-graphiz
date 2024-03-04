@@ -1,0 +1,162 @@
+    /*
+    for x in 0..8 {
+        // Roll
+        base[x][0] = center[0] + ((angle_vec[x][1].to_radians() + rot).sin() * half_width);
+        base[x][2] = center[2] + ((angle_vec[x][1].to_radians() + rot).cos() * half_width);
+        // Yaw
+        /*
+        base[x][0] = center[0] + ((angle_vec[x][2].to_radians() + rot).sin() * half_width);
+        base[x][1] = center[1] + ((angle_vec[x][2].to_radians() + rot).cos() * half_width);
+        // Pitch
+
+        base[x][1] = center[1] + ((angle_vec[x][0].to_radians() + rot).sin() * half_width);
+        base[x][2] = center[2] + ((angle_vec[x][0].to_radians() + rot).cos() * half_width);
+
+        let x_translated = base[x][0] + center[0];
+        let y_translated = base[x][1] + center[1];
+        let z_translated = base[x][2] + center[2];
+        let x_rotated = x_translated * rot.cos() - z_translated * rot.sin();
+        let z_rotated = x_rotated * rot.sin() + z_translated * rot.cos();
+        base[x][0] = x_rotated - center[0];
+        base[x][2] = z_rotated - center;
+        */
+    }
+        println!("{:?}", base);
+    let base_y = shape.coords[1] + shape.width as f32;
+    for x in 0..8 {
+        let x_angle = base_y.atan2(base[x][0]);
+        let shape_x_angle = base_y.atan2(center[0]);
+        let rel_x_angle = (shape_x_angle.cos() - x_angle.cos()).cosh();
+        println!("{}", j);
+    }*/
+    /*
+    for a in 0..8 {
+        cube_corners.push(Point3::new(base[a][0], base[a][1], base[a][2]));
+        let new_x =
+            center_x + (base[a][0] - center_x) * rot2.cos() - (base[a][1] - center_y) * rot2.sin();
+        let new_y =
+            center_y + (base[a][0] - center_x) * rot2.sin() + (base[a][1] - center_y) * rot2.cos();
+        base[a][0] = new_x;
+        base[a][1] = new_y;
+    }
+    let rotation_matrix = Matrix3::new(
+        rot.cos(),
+        0.0,
+        -rot.sin(),
+        0.0,
+        1.0,
+        0.0,
+        rot.sin(),
+        0.0,
+        rot.cos(),
+    );
+    let rotated_points: Vec<Point3<f32>> = cube_corners
+        .iter()
+        .map(|&point| rotation_matrix * point.coords)
+        .map(|coords| Point3::from(coords))
+        .collect();
+
+    base = rotated_points
+        .iter()
+        .map(|point| [point.x, point.y, point.z])
+        .collect();
+    */
+    /*
+    for i in 0..8 {
+        let point = &base[i];
+        let rot_angle = [
+            point[0] * rot.cos() - point[2] * rot.sin(),
+            point[1],
+            point[0] * rot.sin() - point[2] * rot.cos(),
+        ];
+        base[i] = rot_angle;
+    }
+
+    let rotated_cube = base
+        .iter()
+        .map(|&[x, y, z]| {
+            let y_rotated = y * rot.cos() - z * rot.sin();
+            let z_rotated = y * rot.sin() + z * rot.cos();
+            let x_yaw = x * rot.cos() + z_rotated * rot.sin();
+            let z_yaw = -x * rot.sin() + z_rotated * rot.cos();
+            [x_yaw, y, z_yaw]
+        })
+        .collect();
+
+    // Orbit
+
+    for a in 0..8 {
+        let new_x = base[a][0] * rot.cos() - base[a][1] * rot.sin();
+        let new_y = base[a][0] * rot.sin() + base[a][1] * rot.cos();
+        base[a][0] = new_x;
+        base[a][1] = new_y;
+    }*/
+
+
+    /*
+    let normalized_x = Vector2::from_vec(xvec).normalize() * 10.0;
+    println!("{:?}", normalized_x);
+    println!("{:?}", vec1);
+    let normalized_y = Vector2::from_vec(yvec).normalize() * vec1.len() as f32;
+    let mut new_vec: Vec<[i32; 2]> = Vec::new();
+    for j in 0..vec1.len() {
+        new_vec.push([normalized_x[j] as i32, normalized_y[j] as i32]);
+    }
+    vec2 = &new_vec;
+    */
+    /*
+    fill_bresenham(
+        [
+            bresenham_points(points[0], points[1]),
+            bresenham_points(points[2], points[3]),
+        ],
+        frame,
+        window_size,
+        PURPLE1,
+    );
+    fill_bresenham(
+        [
+            bresenham_points(points[0], points[2]),
+            bresenham_points(points[4], points[6]),
+        ],
+        frame,
+        window_size,
+        [0, 128, 128, 255],
+    );
+    fill_bresenham(
+        [
+            bresenham_points(points[1], points[7]),
+            bresenham_points(points[3], points[5]),
+        ],
+        frame,
+        window_size,
+        [255, 0, 255, 255],
+    );
+    fill_bresenham(
+        [
+            bresenham_points(points[0], points[6]),
+            bresenham_points(points[1], points[7]),
+        ],
+        frame,
+        window_size,
+        [0, 0, 128, 255],
+    );
+    fill_bresenham(
+        [
+            bresenham_points(points[2], points[4]),
+            bresenham_points(points[3], points[5]),
+        ],
+        frame,
+        window_size,
+        [0, 128, 0, 255],
+    );
+    fill_bresenham(
+        [
+            bresenham_points(points[4], points[5]),
+            bresenham_points(points[6], points[7]),
+        ],
+        frame,
+        window_size,
+        [128, 0, 0, 255],
+    );
+    */
