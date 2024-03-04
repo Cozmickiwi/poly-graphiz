@@ -65,6 +65,9 @@ pub fn draw_square(
                 break;
             }
             new_y = w_height as usize - (y as usize + row);
+            if new_y >= window_size.height as usize {
+                return;
+            }
             pixel_index = (new_y * window_size.width as usize + (new_x)) * 4;
             if pixel_index > frame.len() - 3 {
                 break;
@@ -86,7 +89,7 @@ pub fn draw_bresenham(
 ) {
     for i in points {
         let (x, y) = (i[0], i[1]);
-        if x >= window_size.width as i32 || x < 0 {
+        if x >= window_size.width as i32 || x < 0 || y <= 0 || y >= window_size.height as i32 {
             continue;
         }
         let offset =
@@ -159,6 +162,7 @@ pub fn draw_corners(
                 continue;
             }
             points.push([x2[0], x2[1]]);
+
             draw_square(
                 frame,
                 window_size,
@@ -368,15 +372,19 @@ fn find_corners_2(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
         }
         base.push([px, py, pz]);
     }
-    base = rotate_cube(&rotate_cube(&base, rot, 'y'), rot, 'x');
+    base = rotate_cube(&rotate_cube(&base, rot, 'y', shape), rot, 'x', shape);
     //    base = rotate_cube(&base, rot, 'y');
     base
 }
 
 //[5, 13, 5]
 
-fn rotate_cube(corner_list: &Vec<[f32; 3]>, rot: f32, ax: char) -> Vec<[f32; 3]> {
-    let center = Point3::new(5.0, 13.0, 5.0);
+fn rotate_cube(corner_list: &Vec<[f32; 3]>, rot: f32, ax: char, shape: &Object) -> Vec<[f32; 3]> {
+    let center = Point3::new(
+        shape.coords[0] + (shape.width as f32 / 2.0),
+        shape.coords[1] + (shape.width as f32 / 2.0),
+        shape.coords[2] + (shape.width as f32 / 2.0),
+    );
     let axis;
     if ax == 'x' {
         axis = Vector3::x_axis();

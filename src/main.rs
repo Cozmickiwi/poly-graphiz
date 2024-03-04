@@ -18,7 +18,7 @@ fn main() {
         y: -40.0,
         frustum: VF_DEFAULT,
     };
-    let test_object = Object {
+    let mut test_object = Object {
         width: 10,
         height: 30,
         coords: [0.0, 8.0, 0.0],
@@ -74,7 +74,6 @@ fn main() {
             } else if rot < 0.0 {
                 rot = PI * 2.0;
             }
-            /*
             if test_object.animated {
                 test_object.coords[2] += 0.1;
                 if test_object.coords[2] >= 8.0 {
@@ -82,10 +81,10 @@ fn main() {
                 }
             } else {
                 test_object.coords[2] -= 0.1;
-                if test_object.coords[2] <= -8.0 {
+                if test_object.coords[2] <= -13.0 {
                     test_object.animated = true;
                 }
-            }*/
+            }
             scan_scene(
                 &vec![&test_object],
                 &player,
