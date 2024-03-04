@@ -68,10 +68,14 @@ fn main() {
                 pixel[2] = 71; // B
                 pixel[3] = 0xff; // A
             }
+            
             rot += 0.01;
-            if rot >= PI * 2.0 || rot <= -(PI * 2.0) {
+            if rot > PI * 2.0 {
                 rot = 0.0;
+            } else if rot < 0.0 {
+                rot = PI * 2.0;
             }
+            /*
             if test_object.animated {
                 test_object.coords[2] += 0.1;
                 if test_object.coords[2] >= 8.0 {
@@ -82,7 +86,7 @@ fn main() {
                 if test_object.coords[2] <= -8.0 {
                     test_object.animated = true;
                 }
-            }
+            }*/
             scan_scene(
                 &vec![&test_object],
                 &player,

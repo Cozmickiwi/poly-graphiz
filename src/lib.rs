@@ -1,5 +1,5 @@
 use line_drawing::Bresenham;
-use nalgebra::{ComplexField, Vector2};
+use nalgebra::{ComplexField, Matrix3, Point3, Vector2};
 use std::cmp::min;
 use winit::dpi::PhysicalSize;
 
@@ -114,7 +114,12 @@ pub fn scan_scene(
             + ((window_size.width / 2) as f32
                 * (((obj_ax.atan2(obj.coords[0] - player.x)) - player.frustum.x).cos() * -1.0)))
             as u32;
-        println!("{ax_angle}");
+        /*
+        println!(
+            "{}",
+            ((obj.coords[0] - player.x).atan2(obj_ax) - player.frustum.x).to_degrees()
+        );*/
+        let deg = ((obj.coords[0] - player.x).atan2(obj_ax) - player.frustum.x).to_degrees();
         let obj_x2 = (window_size.width as f32 / 2.0) + ((window_size.width / 2) as f32 * obj_x);
         if ax_angle < window_size.width && obj_angle.cos() > l_rad.sin() {
             let distance =
@@ -382,22 +387,7 @@ pub fn find_corners(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
     //    let center_z = shape.coords[2] + (shape.width as f32 / 2.0);
     // Rotation
     let rot2 = rot * 2.0;
-    for a in 0..8 {
-        let new_x =
-            center_x + (base[a][0] - center_x) * rot2.cos() - (base[a][1] - center_y) * rot2.sin();
-        let new_y =
-            center_y + (base[a][0] - center_x) * rot2.sin() + (base[a][1] - center_y) * rot2.cos();
-        base[a][0] = new_x;
-        base[a][1] = new_y;
-    }
-    // Orbit
-    /*
-    for a in 0..8 {
-        let new_x = base[a][0] * rot.cos() - base[a][1] * rot.sin();
-        let new_y = base[a][0] * rot.sin() + base[a][1] * rot.cos();
-        base[a][0] = new_x;
-        base[a][1] = new_y;
-    }*/
+    //    let mut cube_corners = Vec::new();
     for i in 0..8 {
         if i % 2 == 0 {
             base[i][2] = shape.coords[2] + shape.width as f32;
@@ -405,8 +395,73 @@ pub fn find_corners(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
             base[i][2] = shape.coords[2];
         }
     }
+    base = find_corners_2(shape, rot);
+    /*
+    for a in 0..8 {
+        cube_corners.push(Point3::new(base[a][0], base[a][1], base[a][2]));
+        let new_x =
+            center_x + (base[a][0] - center_x) * rot2.cos() - (base[a][1] - center_y) * rot2.sin();
+        let new_y =
+            center_y + (base[a][0] - center_x) * rot2.sin() + (base[a][1] - center_y) * rot2.cos();
+        base[a][0] = new_x;
+        base[a][1] = new_y;
+    }
+    let rotation_matrix = Matrix3::new(
+        rot.cos(),
+        0.0,
+        -rot.sin(),
+        0.0,
+        1.0,
+        0.0,
+        rot.sin(),
+        0.0,
+        rot.cos(),
+    );
+    let rotated_points: Vec<Point3<f32>> = cube_corners
+        .iter()
+        .map(|&point| rotation_matrix * point.coords)
+        .map(|coords| Point3::from(coords))
+        .collect();
+
+    base = rotated_points
+        .iter()
+        .map(|point| [point.x, point.y, point.z])
+        .collect();
+    */
+    /*
+    for i in 0..8 {
+        let point = &base[i];
+        let rot_angle = [
+            point[0] * rot.cos() - point[2] * rot.sin(),
+            point[1],
+            point[0] * rot.sin() - point[2] * rot.cos(),
+        ];
+        base[i] = rot_angle;
+    }
+
+    let rotated_cube = base
+        .iter()
+        .map(|&[x, y, z]| {
+            let y_rotated = y * rot.cos() - z * rot.sin();
+            let z_rotated = y * rot.sin() + z * rot.cos();
+            let x_yaw = x * rot.cos() + z_rotated * rot.sin();
+            let z_yaw = -x * rot.sin() + z_rotated * rot.cos();
+            [x_yaw, y, z_yaw]
+        })
+        .collect();
+
+    // Orbit
+
+    for a in 0..8 {
+        let new_x = base[a][0] * rot.cos() - base[a][1] * rot.sin();
+        let new_y = base[a][0] * rot.sin() + base[a][1] * rot.cos();
+        base[a][0] = new_x;
+        base[a][1] = new_y;
+    }*/
+
     //println!("{:?}", base);
     base
+    //rotated_cube
 }
 
 const WIRE_THICKNESS: i32 = 2;
@@ -442,4 +497,78 @@ fn projection(
         return None;
     }
     return Some([new_x, new_y]);
+}
+
+fn find_corners_2(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
+    let mut base = Vec::new();
+    let half_width = shape.width as f32 / 2.0;
+    let center: [f32; 3] = [
+        shape.coords[0] + half_width,
+        shape.coords[1] + half_width,
+        shape.coords[2] + half_width,
+    ];
+//    let rot = 45.0_f32.to_radians();
+    let sine1 = 225.0_f32.to_radians().sin();
+    let sine2 = 45.0_f32.to_radians().sin();
+    let pos_scale = half_width * sine2;
+    let neg_scale = half_width * sine1;
+    let mut angle_vec: Vec<[f32; 3]> = Vec::new();
+    for i in 0..8 {
+        let px;
+        let py;
+        let pz;
+        let mut angles = vec![0.0, 0.0, 0.0];
+        if i < 4 {
+            px = center[0] + neg_scale;
+        } else {
+            px = center[0] + pos_scale;
+        }
+        if i % 2 == 0 {
+            pz = center[2] + pos_scale;
+        } else {
+            pz = center[2] + neg_scale;
+        }
+        if BASE_ALIGNED_Y.contains(&(i as usize)) {
+            py = center[1] + pos_scale;
+        } else {
+            py = center[1] + neg_scale;
+        }
+        base.push([px, py, pz]);
+        //   angle_vec.push([0.0, 0.0, 0.0]);
+    }
+    angle_vec = vec![
+        // Pitch, Roll, Yaw
+        [315.0, 315.0, 315.0],
+        [225.0, 225.0, 315.0],
+        [45.0, 315.0, 225.0],
+        [135.0, 225.0, 225.0],
+        [45.0, 45.0, 135.0],
+        [135.0, 135.0, 135.0],
+        [315.0, 45.0, 45.0],
+        [225.0, 135.0, 45.0],
+    ];
+    for x in 0..8 {
+        // Roll
+        /*
+        base[x][0] = center[0] + ((angle_vec[x][1].to_radians() + rot).sin() * half_width);
+        base[x][2] = center[2] + ((angle_vec[x][1].to_radians() + rot).cos() * half_width);
+        
+        // Yaw 
+        base[x][0] = center[0] + ((angle_vec[x][2].to_radians() + rot).sin() * half_width);
+        base[x][1] = center[1] + ((angle_vec[x][2].to_radians() + rot).cos() * half_width);
+        */
+        // Pitch
+        base[x][1] = center[1] + ((angle_vec[x][0].to_radians() + rot).sin() * half_width);
+        base[x][2] = center[2] + ((angle_vec[x][0].to_radians() + rot).cos() * half_width);
+    }
+    /*    println!("{:?}", base);
+    let base_y = shape.coords[1] + shape.width as f32;
+    for x in 0..8 {
+        let x_angle = base_y.atan2(base[x][0]);
+        let shape_x_angle = base_y.atan2(center[0]);
+        let rel_x_angle = (shape_x_angle.cos() - x_angle.cos()).cosh();
+        println!("{}", j);
+    }*/
+
+    base
 }
