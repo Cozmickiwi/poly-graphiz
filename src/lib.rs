@@ -61,6 +61,9 @@ pub fn draw_square(
     for row in (0..min(height, window_size.height as usize)).rev() {
         for a in 0..width {
             new_x = x as usize + a;
+            if new_x > window_size.width as usize {
+                break;
+            }
             new_y = w_height as usize - (y as usize + row);
             pixel_index = (new_y * window_size.width as usize + (new_x)) * 4;
             if pixel_index > frame.len() - 3 {
@@ -83,6 +86,9 @@ pub fn draw_bresenham(
 ) {
     for i in points {
         let (x, y) = (i[0], i[1]);
+        if x >= window_size.width as i32 {
+            continue;
+        }
         let offset =
             (((window_size.height - y as u32) as u32 * window_size.width + x as u32) * 4) as usize;
         frame[offset] = color[0];
