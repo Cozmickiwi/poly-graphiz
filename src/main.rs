@@ -181,12 +181,12 @@ fn main() {
             } else if wasd[2] {
                 player.y -= 0.3 * player.frustum.x.cos();
                 player.x -= 0.3 * player.frustum.x.sin();
-            } else if wasd[4] {
-                player.x += 0.1 * player.frustum.x.cos();
-                player.y += 0.1 * player.frustum.x.sin();
             } else if wasd[5] {
-                player.x -= 0.1 * player.frustum.x.cos();
-                player.y -= 0.1 * player.frustum.x.sin();
+                player.x += 0.3 * player.frustum.x.cos();
+                player.y += 0.3 * player.frustum.x.sin();
+            } else if wasd[4] {
+                player.x -= 0.3 * player.frustum.x.cos();
+                player.y -= 0.3 * player.frustum.x.sin();
             }
         })
         .unwrap();

@@ -86,7 +86,7 @@ pub fn draw_bresenham(
 ) {
     for i in points {
         let (x, y) = (i[0], i[1]);
-        if x >= window_size.width as i32 {
+        if x >= window_size.width as i32 || x < 0 {
             continue;
         }
         let offset =
@@ -113,7 +113,10 @@ pub fn scan_scene(
             ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
         let rel_angle =
             (obj.coords[0] - player.x).atan2(obj.coords[1] - player.y) - player.frustum.x;
-        if rel_angle.sin() < -0.5 || rel_angle.sin() > 0.5 || rel_angle.cos() < 0.0 {
+        let rel_angle2 = ((obj.coords[0] + obj.width as f32) - player.x)
+            .atan2((obj.coords[1] + obj.width as f32) - player.y)
+            - player.frustum.x;
+        if rel_angle2.sin() < -0.5 || rel_angle.sin() > 0.5 || rel_angle.cos() < 0.0 {
             continue;
         }
         let ax_angle = ((window_size.width / 2) as f32
@@ -155,7 +158,7 @@ pub fn draw_corners(
             if (100.0 / (distance / 5.0)) + ax2 as f32 >= window_size.width as f32 {
                 continue;
             }
-            points.push([x2[0] as i32, x2[1] as i32]);
+            points.push([x2[0], x2[1]]);
             draw_square(
                 frame,
                 window_size,
@@ -319,16 +322,16 @@ fn projection(
     window_size: &PhysicalSize<u32>,
     player: &Player,
     coords: [f32; 3],
-) -> Option<[u32; 2]> {
+) -> Option<[i32; 2]> {
     let distance = ((coords[0] - player.x).powi(2) + (coords[1] - player.y).powi(2)).sqrt();
     let obj_angle = (coords[0] - player.x).atan2(distance);
     let angle_sin = obj_angle - player.frustum.x;
-    let new_x = (window_size.width as f32 * (angle_sin.sin() + 0.5)) as u32;
+    let new_x = (window_size.width as f32 * (angle_sin.sin() + 0.5)) as i32;
     let distance2 = (distance.powi(2) + coords[2].powi(2)).sqrt();
     let new_y;
     let x = (distance2.atan2(coords[2]) + 90.0_f32.to_radians()).sin();
     new_y = (window_size.height as f32 * ((x * (SCREEN_WIDTH as f32 / SCREEN_HEIGHT as f32)) + 0.5))
-        as u32;
+        as i32;
     return Some([new_x, new_y]);
 }
 
