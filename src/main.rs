@@ -20,28 +20,32 @@ fn main() {
     };
     let mut test_object = Object {
         width: 10,
-        height: 30,
-        coords: [0.0, 8.0, 0.0],
+        height: 10,
+        coords: [-5.0, -5.0, -5.0],
         animated: false,
-    }; /*
-       let test_object2 = Object {
-           width: 5,
-           height: 30,
-           coords: [3.0, -8.0, 2.0],
-           animated: false,
-       };
+        vertices: Vec::new(),
+        indices: Vec::new(),
+    };
+    (test_object.vertices, test_object.indices) = parse_obj();
+    /*
+    let test_object2 = Object {
+        width: 5,
+        height: 30,
+        coords: [3.0, -8.0, 2.0],
+        animated: false,
+    };
 
-       let test_object3 = Object {
+    let test_object3 = Object {
+        width: 5,
+        height: 30,
+        coords: [9.0, 3.0, -2.0],
+        animated: false,
+    };
+       let test_object4 = Object {
            width: 5,
            height: 30,
-           coords: [9.0, 3.0, -2.0],
-           animated: false,
-       };
-          let test_object4 = Object {
-              width: 5,
-              height: 30,
-              coords: [-3.0, 0.0, 1.0],
-          };*/
+           coords: [-3.0, 0.0, 1.0],
+       };*/
     let mut rot: f32 = -1.0;
     let event_loop = EventLoop::new().unwrap();
     let builder = WindowBuilder::new()
@@ -60,8 +64,10 @@ fn main() {
         pixel[3] = 0xff; // A
     }
     let mut wasd: [bool; 6] = [false, false, false, false, false, false];
+    parse_obj();
     event_loop
         .run(move |event, elwt| {
+            //            println!("{:?}", player.frustum.x.to_degrees());
             for pixel in pixels.frame_mut().chunks_exact_mut(4) {
                 pixel[0] = 255; // R
                 pixel[1] = 97; // G

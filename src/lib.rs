@@ -1,10 +1,11 @@
 use line_drawing::Bresenham;
 use nalgebra::{Point3, Rotation3, Translation3, Vector3};
-use std::cmp::min;
+use std::{cmp::min, fs::File, io::Read};
 use winit::dpi::PhysicalSize;
 
 /// if the aspect ratio of base_width:base_height != SCREEN_WIDTH:SCREEN_HEIGHT, problems may
 /// occur.
+
 pub struct ViewingFrustum {
     pub x: f32,
     pub y: f32,
@@ -26,6 +27,8 @@ pub struct Object {
     pub height: u16,
     pub coords: [f32; 3],
     pub animated: bool,
+    pub vertices: Vec<[f32; 3]>,
+    pub indices: Vec<Vec<usize>>,
 }
 
 pub const SCREEN_WIDTH: u16 = 1000;
@@ -132,8 +135,8 @@ pub fn scan_scene(
             if (100.0 / (distance / 5.0)) + ax_angle as f32 >= window_size.width as f32 {
                 continue;
             }
-            let corners = find_corners(obj, *rot);
-            draw_corners(&corners, player, frame, window_size, ax_angle);
+            //            let corners = find_corners(obj, *rot);
+            draw_corners(&obj, player, frame, window_size, ax_angle, *rot);
         } else {
             println!("Not in view!!asda")
         }
@@ -141,14 +144,16 @@ pub fn scan_scene(
 }
 
 pub fn draw_corners(
-    corner_list: &Vec<[f32; 3]>,
+    shape: &Object,
     player: &Player,
     frame: &mut [u8],
     window_size: &PhysicalSize<u32>,
     ax2: u32,
+    rot: f32,
 ) {
     let mut points: Vec<[i32; 2]> = Vec::new();
-    for point in corner_list {
+    let rot_v = rotate_cube(&shape.vertices, rot, 'z', &shape);
+    for point in &rot_v {
         let x2;
         if let Some(x) = projection(window_size, player, *point) {
             x2 = x;
@@ -176,15 +181,25 @@ pub fn draw_corners(
             println!("Not in view!");
         }
     }
+    /*
     if points.len() > 1 {
         for p in (0..points.len() - 1).step_by(2) {
             let list = bresenham_points(points[p], points[p + 1]);
             draw_bresenham(frame, window_size, list, PURPLE1);
         }
+    }*/
+    for ind in &shape.indices {
+        for i in 0..ind.len() - 1 {
+            let list = bresenham_points(points[ind[i]], points[ind[i + 1]]);
+            draw_bresenham(frame, window_size, list, PURPLE1);
+        }
+        let list = bresenham_points(points[ind[ind.len() - 1]], points[ind[0]]);
+        draw_bresenham(frame, window_size, list, PURPLE1);
     }
     if points.len() < 8 {
         return;
     }
+    /*
     draw_bresenham(
         frame,
         window_size,
@@ -232,7 +247,7 @@ pub fn draw_corners(
         window_size,
         bresenham_points(points[5], points[7]),
         PURPLE1,
-    );
+    );*/
 }
 
 pub fn fill_bresenham(
@@ -328,14 +343,13 @@ fn projection(
     coords: [f32; 3],
 ) -> Option<[i32; 2]> {
     let distance = ((coords[0] - player.x).powi(2) + (coords[1] - player.y).powi(2)).sqrt();
-    let obj_angle = (coords[0] - player.x).atan2(distance);
+    let obj_angle = (coords[0] - player.x).atan2(coords[1] - player.y);
     let angle_sin = obj_angle - player.frustum.x;
     let new_x = (window_size.width as f32 * (angle_sin.sin() + 0.5)) as i32;
     let distance2 = (distance.powi(2) + coords[2].powi(2)).sqrt();
-    let new_y;
     let x = (distance2.atan2(coords[2]) + 90.0_f32.to_radians()).sin();
-    new_y = (window_size.height as f32 * ((x * (SCREEN_WIDTH as f32 / SCREEN_HEIGHT as f32)) + 0.5))
-        as i32;
+    let new_y = (window_size.height as f32
+        * ((x * (SCREEN_WIDTH as f32 / SCREEN_HEIGHT as f32)) + 0.5)) as i32;
     return Some([new_x, new_y]);
 }
 
@@ -381,9 +395,10 @@ fn find_corners_2(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
 
 fn rotate_cube(corner_list: &Vec<[f32; 3]>, rot: f32, ax: char, shape: &Object) -> Vec<[f32; 3]> {
     let center = Point3::new(
-        shape.coords[0] + (shape.width as f32 / 2.0),
-        shape.coords[1] + (shape.width as f32 / 2.0),
-        shape.coords[2] + (shape.width as f32 / 2.0),
+        //shape.coords[0] + (shape.width as f32 / 2.0),
+        //shape.coords[1] + (shape.width as f32 / 2.0),
+        //shape.coords[2] + (shape.width as f32 / 2.0),
+        0.0, 0.0, 0.0,
     );
     let axis;
     if ax == 'x' {
@@ -414,4 +429,30 @@ fn rotate_cube(corner_list: &Vec<[f32; 3]>, rot: f32, ax: char, shape: &Object) 
         })
         .collect();
     rotated_points
+}
+
+pub fn parse_obj() -> (Vec<[f32; 3]>, Vec<Vec<usize>>) {
+    let mut file = File::open("../sphere1.obj").unwrap();
+    let mut buffer = String::new();
+    file.read_to_string(&mut buffer).unwrap();
+    let mut vertices = Vec::new();
+    let mut indices = Vec::new();
+    for line in buffer.lines() {
+        let split_line: Vec<&str> = line.split_whitespace().collect();
+        if split_line[0] == "v" {
+            let x: f32 = split_line[1].parse().unwrap();
+            let y: f32 = split_line[2].parse().unwrap();
+            let z: f32 = split_line[3].parse().unwrap();
+            vertices.push([x, y, z]);
+        } else if split_line[0] == "f" {
+            let mut i_list = Vec::new();
+            for i in 1..split_line.len() {
+                let vs: Vec<&str> = split_line[i].split("/").collect();
+                let v: usize = vs[0].parse().unwrap();
+                i_list.push(v - 1);
+            }
+            indices.push(i_list);
+        }
+    }
+    return (vertices, indices);
 }
