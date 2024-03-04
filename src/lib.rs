@@ -1,5 +1,5 @@
 use line_drawing::Bresenham;
-use nalgebra::{ComplexField, Matrix3, Point3, Vector2};
+use nalgebra::{ComplexField, Matrix3, Point3, Rotation3, Translation3, Vector2, Vector3};
 use std::cmp::min;
 use winit::dpi::PhysicalSize;
 
@@ -507,7 +507,7 @@ fn find_corners_2(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
         shape.coords[1] + half_width,
         shape.coords[2] + half_width,
     ];
-//    let rot = 45.0_f32.to_radians();
+    //    let rot = 45.0_f32.to_radians();
     let sine1 = 225.0_f32.to_radians().sin();
     let sine2 = 45.0_f32.to_radians().sin();
     let pos_scale = half_width * sine2;
@@ -547,21 +547,31 @@ fn find_corners_2(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
         [315.0, 45.0, 45.0],
         [225.0, 135.0, 45.0],
     ];
+    return rotate_cube(&base, rot);
+    /*
     for x in 0..8 {
         // Roll
-        /*
         base[x][0] = center[0] + ((angle_vec[x][1].to_radians() + rot).sin() * half_width);
         base[x][2] = center[2] + ((angle_vec[x][1].to_radians() + rot).cos() * half_width);
-        
-        // Yaw 
+        // Yaw
+        /*
         base[x][0] = center[0] + ((angle_vec[x][2].to_radians() + rot).sin() * half_width);
         base[x][1] = center[1] + ((angle_vec[x][2].to_radians() + rot).cos() * half_width);
-        */
         // Pitch
+
         base[x][1] = center[1] + ((angle_vec[x][0].to_radians() + rot).sin() * half_width);
         base[x][2] = center[2] + ((angle_vec[x][0].to_radians() + rot).cos() * half_width);
+
+        let x_translated = base[x][0] + center[0];
+        let y_translated = base[x][1] + center[1];
+        let z_translated = base[x][2] + center[2];
+        let x_rotated = x_translated * rot.cos() - z_translated * rot.sin();
+        let z_rotated = x_rotated * rot.sin() + z_translated * rot.cos();
+        base[x][0] = x_rotated - center[0];
+        base[x][2] = z_rotated - center;
+        */
     }
-    /*    println!("{:?}", base);
+        println!("{:?}", base);
     let base_y = shape.coords[1] + shape.width as f32;
     for x in 0..8 {
         let x_angle = base_y.atan2(base[x][0]);
@@ -570,5 +580,39 @@ fn find_corners_2(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
         println!("{}", j);
     }*/
 
-    base
+    //    base
+}
+
+//[5, 13, 5]
+
+fn rotate_cube(corner_list: &Vec<[f32; 3]>, rot: f32) -> Vec<[f32; 3]> {
+    let center = Point3::new(5.0, 13.0, 5.0);
+    let axis = Vector3::y_axis();
+    let origin_translation = Translation3::from(-center.coords);
+    let rotation_matrix = Rotation3::from_axis_angle(&axis, rot);
+    let mut v1: Vec<[f32; 3]> = Vec::new();
+    for i in corner_list {
+        let point = Point3::new(i[0], i[1], i[2]);
+        let translated_point = origin_translation * point;
+        v1.push([translated_point.x, translated_point.y, translated_point.z]);
+    }
+    let rotated_points: Vec<[f32; 3]> = v1
+        .iter()
+        .map(|&corner| {
+            //            let v = Vector3::new(corner[0], corner[1], corner[2]);
+            let rotated_point =
+                rotation_matrix.transform_point(&Point3::new(corner[0], corner[1], corner[2]));
+            let translation_back = Translation3::from(center.coords);
+            //rotation_matrix * v
+            let t = translation_back * rotated_point;
+            return [t.x, t.y, t.z];
+        })
+        .collect();
+    /*
+    let mut v2: Vec<[f32; 3]> = Vec::new();
+    for i in rotated_points {
+        v2.push([i[0], i[1], i[2]]);
+    }*/
+    rotated_points
+    //    println!("{:?}", rotated_points);
 }
