@@ -59,7 +59,7 @@ fn main() {
         pixel[2] = 71; // B
         pixel[3] = 0xff; // A
     }
-    let mut wasd: [bool; 4] = [false, false, false, false];
+    let mut wasd: [bool; 6] = [false, false, false, false, false, false];
     event_loop
         .run(move |event, elwt| {
             for pixel in pixels.frame_mut().chunks_exact_mut(4) {
@@ -146,6 +146,20 @@ fn main() {
                                 wasd[2] = false
                             }
                         }
+                        winit::keyboard::PhysicalKey::Code(winit::keyboard::KeyCode::KeyH) => {
+                            if event.state.is_pressed() {
+                                wasd[4] = true;
+                            } else {
+                                wasd[4] = false
+                            }
+                        }
+                        winit::keyboard::PhysicalKey::Code(winit::keyboard::KeyCode::KeyL) => {
+                            if event.state.is_pressed() {
+                                wasd[5] = true;
+                            } else {
+                                wasd[5] = false
+                            }
+                        }
                         _ => {}
                     },
                     _ => {}
@@ -153,12 +167,12 @@ fn main() {
                 _ => (),
             }
             if wasd[1] {
-                player.frustum.x -= 0.01;
+                player.frustum.x -= 0.02;
                 if player.frustum.x <= 0.0 {
                     player.frustum.x = 2.0 * PI;
                 }
             } else if wasd[3] {
-                player.frustum.x += 0.01;
+                player.frustum.x += 0.02;
                 if player.frustum.x >= 2.0 * PI {
                     player.frustum.x = 0.0;
                 }
@@ -168,7 +182,14 @@ fn main() {
             } else if wasd[2] {
                 player.y -= 0.3 * player.frustum.x.cos();
                 player.x -= 0.3 * player.frustum.x.sin();
+            } else if wasd[4] {
+                player.x += 0.1 * player.frustum.x.cos();
+                player.y += 0.1 * player.frustum.x.sin();
+            } else if wasd[5] {
+                player.x -= 0.1 * player.frustum.x.cos();
+                player.y -= 0.1 * player.frustum.x.sin();
             }
+            println!("{}", player.x);
         })
         .unwrap();
 }

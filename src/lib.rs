@@ -318,7 +318,7 @@ fn projection(
     coords: [f32; 3],
 ) -> Option<[u32; 2]> {
     let distance = ((coords[0] - player.x).powi(2) + (coords[1] - player.y).powi(2)).sqrt();
-    let obj_angle = coords[0].atan2(distance);
+    let obj_angle = (coords[0] - player.x).atan2(distance);
     let angle_sin = obj_angle - player.frustum.x;
     /*
     let new_x = ((window_size.width / 2) as f32
@@ -332,7 +332,7 @@ fn projection(
     //    println!("{}", ydeg.to_radians().sin());
     //   println!("{}", distance2.atan2(coords[2]).cos());
     let x = (distance2.atan2(coords[2]) + 90.0_f32.to_radians()).sin();
-    println!("{x}");
+//    println!("{x}");
     /*
     if ydeg < 30.0 && ydeg > -30.0 {
         new_y = ((window_size.height / 2) as f32
@@ -341,7 +341,8 @@ fn projection(
         return None;
     }
         */
-    new_y = (window_size.height as f32 * ((x * 1.66) + 0.5)) as u32;
+    new_y = (window_size.height as f32 * ((x * (SCREEN_WIDTH as f32 / SCREEN_HEIGHT as f32)) + 0.5))
+        as u32;
     return Some([new_x, new_y]);
 }
 
