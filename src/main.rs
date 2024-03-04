@@ -18,30 +18,30 @@ fn main() {
         y: -40.0,
         frustum: VF_DEFAULT,
     };
-    let mut test_object = Object {
+    let test_object = Object {
         width: 10,
         height: 30,
         coords: [0.0, 8.0, 0.0],
         animated: false,
-    };
-    let test_object2 = Object {
-        width: 5,
-        height: 30,
-        coords: [3.0, -8.0, 2.0],
-        animated: false,
-    };
-
-    let test_object3 = Object {
-        width: 5,
-        height: 30,
-        coords: [9.0, 3.0, -2.0],
-        animated: false,
     }; /*
-       let test_object4 = Object {
+       let test_object2 = Object {
            width: 5,
            height: 30,
-           coords: [-3.0, 0.0, 1.0],
-       };*/
+           coords: [3.0, -8.0, 2.0],
+           animated: false,
+       };
+
+       let test_object3 = Object {
+           width: 5,
+           height: 30,
+           coords: [9.0, 3.0, -2.0],
+           animated: false,
+       };
+          let test_object4 = Object {
+              width: 5,
+              height: 30,
+              coords: [-3.0, 0.0, 1.0],
+          };*/
     let mut rot: f32 = -1.0;
     let event_loop = EventLoop::new().unwrap();
     let builder = WindowBuilder::new()
@@ -68,7 +68,6 @@ fn main() {
                 pixel[2] = 71; // B
                 pixel[3] = 0xff; // A
             }
-
             rot += 0.01;
             if rot > PI * 2.0 {
                 rot = 0.0;
