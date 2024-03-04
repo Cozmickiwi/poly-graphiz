@@ -19,7 +19,7 @@ fn main() {
         frustum: VF_DEFAULT,
     };
     let mut test_object = Object {
-        width: 5,
+        width: 10,
         height: 30,
         coords: [0.0, 8.0, 0.0],
         animated: false,
@@ -68,17 +68,17 @@ fn main() {
                 pixel[2] = 71; // B
                 pixel[3] = 0xff; // A
             }
-            rot += 0.005;
+            rot += 0.01;
             if rot >= PI * 2.0 || rot <= -(PI * 2.0) {
                 rot = 0.0;
             }
             if test_object.animated {
-                test_object.coords[2] += 0.05;
+                test_object.coords[2] += 0.1;
                 if test_object.coords[2] >= 8.0 {
                     test_object.animated = false;
                 }
             } else {
-                test_object.coords[2] -= 0.05;
+                test_object.coords[2] -= 0.1;
                 if test_object.coords[2] <= -8.0 {
                     test_object.animated = true;
                 }

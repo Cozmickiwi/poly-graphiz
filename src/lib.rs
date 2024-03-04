@@ -1,5 +1,5 @@
 use line_drawing::Bresenham;
-use nalgebra::Vector2;
+use nalgebra::{ComplexField, Vector2};
 use std::cmp::min;
 use winit::dpi::PhysicalSize;
 
@@ -107,19 +107,27 @@ pub fn scan_scene(
         let r_rad = player.frustum.x + HALF_FOV.to_radians();
         let obj_angle = (obj.coords[0] - player.x).atan2(obj.coords[1] - player.y);
         let obj_x = r_rad.sin() - (obj_angle.sin() - l_rad.sin());
+        let obj_ax =
+            ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
+        let player_hyp = (player.x.powi(2) + player.y.powi(2)).sqrt();
+        let ax_angle = ((window_size.width / 2) as f32
+            + ((window_size.width / 2) as f32
+                * (((obj_ax.atan2(obj.coords[0] - player.x)) - player.frustum.x).cos() * -1.0)))
+            as u32;
+        println!("{ax_angle}");
         let obj_x2 = (window_size.width as f32 / 2.0) + ((window_size.width / 2) as f32 * obj_x);
-        if obj_x2 >= 0.0 && obj_x2 < window_size.width as f32 && obj_angle.cos() > l_rad.sin() {
+        if ax_angle < window_size.width && obj_angle.cos() > l_rad.sin() {
             let distance =
                 ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
-            if (100.0 / (distance / 5.0)) + obj_x2 >= window_size.width as f32 {
+            if (100.0 / (distance / 5.0)) + ax_angle as f32 >= window_size.width as f32 {
                 //                println!("Not in view!!");
                 continue;
             }
             //            println!("{obj_x2}");
             let corners = find_corners(obj, *rot);
-            draw_corners(&corners, player, frame, window_size);
+            draw_corners(&corners, player, frame, window_size, ax_angle);
         } else {
-            //            println!("Not in view!!")
+            println!("Not in view!!asda")
         }
     }
 }
@@ -129,6 +137,7 @@ pub fn draw_corners(
     player: &Player,
     frame: &mut [u8],
     window_size: &PhysicalSize<u32>,
+    ax2: u32,
 ) {
     let mut ticker = -1;
     let mut points: Vec<[i32; 2]> = Vec::new();
@@ -143,13 +152,15 @@ pub fn draw_corners(
         if let Some(x) = projection(window_size, player, *point) {
             x2 = x;
         } else {
-            //            println!("None!");
+            println!("None!");
             return;
         }
         let obj_x2 = (window_size.width as f32 / 2.0) + ((window_size.width / 2) as f32 * obj_x);
-        if obj_x2 >= 0.0 && obj_x2 < window_size.width as f32 && obj_angle.cos() > l_rad.sin() {
+        if ax2 >= 0 && ax2 < window_size.width
+        /*&& obj_angle.cos() > l_rad.sin()*/
+        {
             let distance = ((point[0] - player.x).powi(2) + (point[1] - player.y).powi(2)).sqrt();
-            if (100.0 / (distance / 5.0)) + obj_x2 >= window_size.width as f32 {
+            if (100.0 / (distance / 5.0)) + ax2 as f32 >= window_size.width as f32 {
                 continue;
             } /*
               let height;
@@ -169,6 +180,8 @@ pub fn draw_corners(
                 5,
                 PURPLE1,
             );
+        } else {
+            println!("Not in view!");
         }
     }
     if points.len() > 1 {
@@ -228,6 +241,8 @@ pub fn draw_corners(
         bresenham_points(points[5], points[7]),
         PURPLE1,
     );
+    // fill sides
+    /*
     fill_bresenham(
         [
             bresenham_points(points[0], points[1]),
@@ -282,6 +297,7 @@ pub fn draw_corners(
         window_size,
         [128, 0, 0, 255],
     );
+    */
 }
 
 pub fn fill_bresenham(
@@ -363,6 +379,7 @@ pub fn find_corners(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
     }
     let center_x = shape.coords[0] + (shape.width as f32 / 2.0);
     let center_y = shape.coords[1] + (shape.width as f32 / 2.0);
+    //    let center_z = shape.coords[2] + (shape.width as f32 / 2.0);
     // Rotation
     let rot2 = rot * 2.0;
     for a in 0..8 {
