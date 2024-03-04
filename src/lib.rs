@@ -105,6 +105,14 @@ pub fn scan_scene(
         let obj_angle = (obj.coords[0] - player.x).atan2(obj.coords[1] - player.y);
         let obj_ax =
             ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
+        //        println!("{}", obj.coords[1].atan2(obj_ax).to_degrees());
+        //      println!("Cam: {}", player.frustum.x.to_degrees());
+        if (player.frustum.x - obj.coords[1].atan2(obj_ax)).sin() < -0.5
+            || (player.frustum.x - obj.coords[1].atan2(obj_ax)).sin() > 0.5
+        {
+            println!("AHBFHJ");
+            return;
+        }
         let ax_angle = ((window_size.width / 2) as f32
             + ((window_size.width / 2) as f32
                 * (((obj_ax.atan2(obj.coords[0] - player.x)) - player.frustum.x).cos() * -1.0)))
@@ -312,18 +320,28 @@ fn projection(
     let distance = ((coords[0] - player.x).powi(2) + (coords[1] - player.y).powi(2)).sqrt();
     let obj_angle = coords[0].atan2(distance);
     let angle_sin = obj_angle - player.frustum.x;
+    /*
     let new_x = ((window_size.width / 2) as f32
         + ((window_size.width / 2) as f32 * angle_sin.sin())) as u32;
-    //  println!("{}", angle_sin.sin());
+    */
+    let new_x = (window_size.width as f32 * (angle_sin.sin() + 0.5)) as u32;
+    //    println!("{}", angle_sin.sin());
     let distance2 = (distance.powi(2) + coords[2].powi(2)).sqrt();
-    let ydeg = (coords[2].atan2(distance2)).to_degrees();
+    let ydeg = ((coords[2]).atan2(distance2));
     let new_y;
-    if ydeg < 35.0 && ydeg > -35.0 {
+    //    println!("{}", ydeg.to_radians().sin());
+    //   println!("{}", distance2.atan2(coords[2]).cos());
+    let x = (distance2.atan2(coords[2]) + 90.0_f32.to_radians()).sin();
+    println!("{x}");
+    /*
+    if ydeg < 30.0 && ydeg > -30.0 {
         new_y = ((window_size.height / 2) as f32
-            + ((window_size.height / 2) as f32 * (ydeg / 35.0))) as u32;
+            + ((window_size.height / 2) as f32 * (ydeg / 30.0))) as u32;
     } else {
         return None;
     }
+        */
+    new_y = (window_size.height as f32 * ((x * 1.66) + 0.5)) as u32;
     return Some([new_x, new_y]);
 }
 
@@ -360,7 +378,8 @@ fn find_corners_2(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
         }
         base.push([px, py, pz]);
     }
-    base = rotate_cube(&rotate_cube(&base, rot, 'z'), rot, 'x');
+    base = rotate_cube(&rotate_cube(&base, rot, 'y'), rot, 'x');
+    //    base = rotate_cube(&base, rot, 'y');
     base
 }
 

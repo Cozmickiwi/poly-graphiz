@@ -12,8 +12,8 @@ use winit::{
 
 fn main() {
     let mut player = Player {
-        fov: 70,
-        half_fov: 35,
+        fov: 60,
+        half_fov: 30,
         x: 0.0,
         y: -40.0,
         frustum: VF_DEFAULT,
@@ -152,22 +152,22 @@ fn main() {
                 },
                 _ => (),
             }
-            if wasd[3] {
+            if wasd[1] {
                 player.frustum.x -= 0.01;
                 if player.frustum.x <= 0.0 {
                     player.frustum.x = 2.0 * PI;
                 }
-            } else if wasd[1] {
+            } else if wasd[3] {
                 player.frustum.x += 0.01;
                 if player.frustum.x >= 2.0 * PI {
                     player.frustum.x = 0.0;
                 }
             } else if wasd[0] {
-                player.y += 0.1 * player.frustum.x.cos();
-                player.x += 0.1 * player.frustum.x.sin();
+                player.y += 0.3 * player.frustum.x.cos();
+                player.x += 0.3 * player.frustum.x.sin();
             } else if wasd[2] {
-                player.y -= 0.1 * player.frustum.x.cos();
-                player.x -= 0.1 * player.frustum.x.sin();
+                player.y -= 0.3 * player.frustum.x.cos();
+                player.x -= 0.3 * player.frustum.x.sin();
             }
         })
         .unwrap();
