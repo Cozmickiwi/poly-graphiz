@@ -27,25 +27,6 @@ fn main() {
         indices: Vec::new(),
     };
     (test_object.vertices, test_object.indices) = parse_obj();
-    /*
-    let test_object2 = Object {
-        width: 5,
-        height: 30,
-        coords: [3.0, -8.0, 2.0],
-        animated: false,
-    };
-
-    let test_object3 = Object {
-        width: 5,
-        height: 30,
-        coords: [9.0, 3.0, -2.0],
-        animated: false,
-    };
-       let test_object4 = Object {
-           width: 5,
-           height: 30,
-           coords: [-3.0, 0.0, 1.0],
-       };*/
     let mut rot: f32 = -1.0;
     let event_loop = EventLoop::new().unwrap();
     let builder = WindowBuilder::new()
@@ -58,9 +39,9 @@ fn main() {
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &builder);
     let mut pixels = Pixels::new(window_size.width, window_size.height, surface_texture).unwrap();
     for pixel in pixels.frame_mut().chunks_exact_mut(4) {
-        pixel[0] = 255; // R
-        pixel[1] = 27; // G
-        pixel[2] = 71; // B
+        pixel[0] = 0; // R
+        pixel[1] = 0; // G
+        pixel[2] = 0; // B
         pixel[3] = 0xff; // A
     }
     let mut wasd: [bool; 6] = [false, false, false, false, false, false];
@@ -69,12 +50,12 @@ fn main() {
         .run(move |event, elwt| {
             //            println!("{:?}", player.frustum.x.to_degrees());
             for pixel in pixels.frame_mut().chunks_exact_mut(4) {
-                pixel[0] = 255; // R
-                pixel[1] = 97; // G
-                pixel[2] = 71; // B
+                pixel[0] = 0; // R
+                pixel[1] = 0; // G
+                pixel[2] = 0; // B
                 pixel[3] = 0xff; // A
             }
-            rot += 0.01;
+            rot += 0.001;
             if rot > PI * 2.0 {
                 rot = 0.0;
             } else if rot < 0.0 {

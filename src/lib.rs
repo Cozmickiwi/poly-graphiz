@@ -31,9 +31,9 @@ pub struct Object {
     pub indices: Vec<Vec<usize>>,
 }
 
-pub const SCREEN_WIDTH: u16 = 1000;
-pub const SCREEN_HEIGHT: u16 = 600;
-pub const SCALE: u16 = 1;
+pub const SCREEN_WIDTH: u16 = 1200;
+pub const SCREEN_HEIGHT: u16 = 900;
+//pub const SCALE: u16 = 1;
 
 pub const VF_DEFAULT: ViewingFrustum = ViewingFrustum {
     x: 0.0,
@@ -47,6 +47,7 @@ pub const TESTCOLOR: [u8; 4] = [0, 27, 71, 0];
 pub const BLUE1: [u8; 4] = [25, 122, 154, 0];
 pub const PURPLE1: [u8; 4] = [131, 60, 169, 0];
 pub const RED1: [u8; 4] = [154, 25, 70, 0];
+pub const ALICEBLUE: [u8; 4] = [240, 255, 255, 0];
 
 pub fn draw_square(
     frame: &mut [u8],
@@ -103,7 +104,7 @@ pub fn draw_bresenham(
     }
 }
 
-const HALF_FOV: f32 = 30.0;
+//const HALF_FOV: f32 = 30.0;
 
 pub fn scan_scene(
     object_list: &Vec<&Object>,
@@ -113,8 +114,8 @@ pub fn scan_scene(
     rot: &f32,
 ) {
     for obj in object_list {
-        let l_rad = player.frustum.x - HALF_FOV.to_radians();
-        let obj_angle = (obj.coords[0] - player.x).atan2(obj.coords[1] - player.y);
+//        let l_rad = player.frustum.x - HALF_FOV.to_radians();
+//        let obj_angle = (obj.coords[0] - player.x).atan2(obj.coords[1] - player.y);
         let obj_ax =
             ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
         let rel_angle =
@@ -129,17 +130,17 @@ pub fn scan_scene(
             + ((window_size.width / 2) as f32
                 * (((obj_ax.atan2(obj.coords[0] - player.x)) - player.frustum.x).cos() * -1.0)))
             as u32;
-        if ax_angle < window_size.width && obj_angle.cos() > l_rad.sin() {
-            let distance =
-                ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
-            if (100.0 / (distance / 5.0)) + ax_angle as f32 >= window_size.width as f32 {
-                continue;
-            }
-            //            let corners = find_corners(obj, *rot);
-            draw_corners(obj, player, frame, window_size, ax_angle, *rot);
-        } else {
-            println!("Not in view!!asda")
+        //        if ax_angle < window_size.width && obj_angle.cos() > l_rad.sin() {
+        let distance =
+            ((obj.coords[0] - player.x).powi(2) + (obj.coords[1] - player.y).powi(2)).sqrt();
+        if (100.0 / (distance / 5.0)) + ax_angle as f32 >= window_size.width as f32 {
+            continue;
         }
+        //            let corners = find_corners(obj, *rot);
+        draw_corners(obj, player, frame, window_size, ax_angle, *rot);
+        //      } else {
+        //        println!("Not in view!!asda")
+        //  }
     }
 }
 
@@ -167,16 +168,16 @@ pub fn draw_corners(
                 continue;
             }
             points.push([x2[0], x2[1]]);
-
-            draw_square(
-                frame,
-                window_size,
-                x2[0] as u32 - 2,
-                x2[1] as u32 - 2,
-                5,
-                5,
-                PURPLE1,
-            );
+        /*
+        draw_square(
+            frame,
+            window_size,
+            x2[0] as u32 - 2,
+            x2[1] as u32 - 2,
+            5,
+            5,
+            PURPLE1,
+        );*/
         } else {
             println!("Not in view!");
         }
@@ -191,13 +192,12 @@ pub fn draw_corners(
     for ind in &shape.indices {
         for i in 0..ind.len() - 1 {
             let list = bresenham_points(points[ind[i]], points[ind[i + 1]]);
-            draw_bresenham(frame, window_size, list, PURPLE1);
+            draw_bresenham(frame, window_size, list, ALICEBLUE);
         }
         let list = bresenham_points(points[ind[ind.len() - 1]], points[ind[0]]);
-        draw_bresenham(frame, window_size, list, PURPLE1);
+        draw_bresenham(frame, window_size, list, ALICEBLUE);
     }
-    if points.len() < 8 {
-    }
+    if points.len() < 8 {}
     /*
     draw_bresenham(
         frame,
@@ -255,7 +255,6 @@ pub fn fill_bresenham(
     window_size: &PhysicalSize<u32>,
     color: [u8; 4],
 ) {
-    
     let chosen_vec: usize;
     let smaller_vec: usize;
     if points[0].len() > points[1].len() {
@@ -324,7 +323,7 @@ pub fn find_corners(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
     base
 }
 
-const WIRE_THICKNESS: i32 = 2;
+const WIRE_THICKNESS: i32 = 1;
 
 fn bresenham_points(p1: [i32; 2], p2: [i32; 2]) -> Vec<[i32; 2]> {
     let mut points: Vec<[i32; 2]> = Vec::new();
@@ -431,7 +430,7 @@ fn rotate_cube(corner_list: &Vec<[f32; 3]>, rot: f32, ax: char, _shape: &Object)
 }
 
 pub fn parse_obj() -> (Vec<[f32; 3]>, Vec<Vec<usize>>) {
-    let mut file = File::open("../sphere1.obj").unwrap();
+    let mut file = File::open("../model.obj").unwrap();
     let mut buffer = String::new();
     file.read_to_string(&mut buffer).unwrap();
     let mut vertices = Vec::new();
