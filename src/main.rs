@@ -123,46 +123,22 @@ fn main() {
                         is_synthetic: _,
                     } => match event.physical_key {
                         winit::keyboard::PhysicalKey::Code(winit::keyboard::KeyCode::KeyA) => {
-                            if event.state.is_pressed() {
-                                wasd[1] = true;
-                            } else {
-                                wasd[1] = false
-                            }
+                            wasd[1] = event.state.is_pressed();
                         }
                         winit::keyboard::PhysicalKey::Code(winit::keyboard::KeyCode::KeyD) => {
-                            if event.state.is_pressed() {
-                                wasd[3] = true;
-                            } else {
-                                wasd[3] = false
-                            }
+                            wasd[3] = event.state.is_pressed();
                         }
                         winit::keyboard::PhysicalKey::Code(winit::keyboard::KeyCode::KeyW) => {
-                            if event.state.is_pressed() {
-                                wasd[0] = true;
-                            } else {
-                                wasd[0] = false
-                            }
+                            wasd[0] = event.state.is_pressed();
                         }
                         winit::keyboard::PhysicalKey::Code(winit::keyboard::KeyCode::KeyS) => {
-                            if event.state.is_pressed() {
-                                wasd[2] = true;
-                            } else {
-                                wasd[2] = false
-                            }
+                            wasd[2] = event.state.is_pressed();
                         }
                         winit::keyboard::PhysicalKey::Code(winit::keyboard::KeyCode::KeyH) => {
-                            if event.state.is_pressed() {
-                                wasd[4] = true;
-                            } else {
-                                wasd[4] = false
-                            }
+                            wasd[4] = event.state.is_pressed();
                         }
                         winit::keyboard::PhysicalKey::Code(winit::keyboard::KeyCode::KeyL) => {
-                            if event.state.is_pressed() {
-                                wasd[5] = true;
-                            } else {
-                                wasd[5] = false
-                            }
+                            wasd[5] = event.state.is_pressed();
                         }
                         _ => {}
                     },

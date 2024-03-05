@@ -96,7 +96,7 @@ pub fn draw_bresenham(
             continue;
         }
         let offset =
-            (((window_size.height - y as u32) as u32 * window_size.width + x as u32) * 4) as usize;
+            (((window_size.height - y as u32) * window_size.width + x as u32) * 4) as usize;
         frame[offset] = color[0];
         frame[offset + 1] = color[1];
         frame[offset + 2] = color[2];
@@ -136,7 +136,7 @@ pub fn scan_scene(
                 continue;
             }
             //            let corners = find_corners(obj, *rot);
-            draw_corners(&obj, player, frame, window_size, ax_angle, *rot);
+            draw_corners(obj, player, frame, window_size, ax_angle, *rot);
         } else {
             println!("Not in view!!asda")
         }
@@ -152,7 +152,7 @@ pub fn draw_corners(
     rot: f32,
 ) {
     let mut points: Vec<[i32; 2]> = Vec::new();
-    let rot_v = rotate_cube(&shape.vertices, rot, 'z', &shape);
+    let rot_v = rotate_cube(&shape.vertices, rot, 'z', shape);
     for point in &rot_v {
         let x2;
         if let Some(x) = projection(window_size, player, *point) {
@@ -197,7 +197,6 @@ pub fn draw_corners(
         draw_bresenham(frame, window_size, list, PURPLE1);
     }
     if points.len() < 8 {
-        return;
     }
     /*
     draw_bresenham(
@@ -256,7 +255,7 @@ pub fn fill_bresenham(
     window_size: &PhysicalSize<u32>,
     color: [u8; 4],
 ) {
-    let vec1: &Vec<[i32; 2]>;
+    
     let chosen_vec: usize;
     let smaller_vec: usize;
     if points[0].len() > points[1].len() {
@@ -266,7 +265,7 @@ pub fn fill_bresenham(
         chosen_vec = 1;
         smaller_vec = 0;
     }
-    vec1 = &points[chosen_vec];
+    let vec1: &Vec<[i32; 2]> = &points[chosen_vec];
     let mut tempvec = Vec::new();
     for i in &points[smaller_vec] {
         let tempvec2 = [i[0] as f32, i[1] as f32];
@@ -282,7 +281,7 @@ pub fn fill_bresenham(
     let scale = points[smaller_vec].len() as f32 / vec1.len() as f32;
     for i in 0..vec1.len() {
         let n = (i as f32 * scale) as usize;
-        new_vec2.push(points[smaller_vec][n].clone());
+        new_vec2.push(points[smaller_vec][n]);
     }
     for x in 0..vec1.len() {
         draw_bresenham(
@@ -350,7 +349,7 @@ fn projection(
     let x = (distance2.atan2(coords[2]) + 90.0_f32.to_radians()).sin();
     let new_y = (window_size.height as f32
         * ((x * (SCREEN_WIDTH as f32 / SCREEN_HEIGHT as f32)) + 0.5)) as i32;
-    return Some([new_x, new_y]);
+    Some([new_x, new_y])
 }
 
 fn find_corners_2(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
@@ -393,7 +392,7 @@ fn find_corners_2(shape: &Object, rot: f32) -> Vec<[f32; 3]> {
 
 //[5, 13, 5]
 
-fn rotate_cube(corner_list: &Vec<[f32; 3]>, rot: f32, ax: char, shape: &Object) -> Vec<[f32; 3]> {
+fn rotate_cube(corner_list: &Vec<[f32; 3]>, rot: f32, ax: char, _shape: &Object) -> Vec<[f32; 3]> {
     let center = Point3::new(
         //shape.coords[0] + (shape.width as f32 / 2.0),
         //shape.coords[1] + (shape.width as f32 / 2.0),
@@ -425,7 +424,7 @@ fn rotate_cube(corner_list: &Vec<[f32; 3]>, rot: f32, ax: char, shape: &Object) 
                 rotation_matrix.transform_point(&Point3::new(corner[0], corner[1], corner[2]));
             let translation_back = Translation3::from(center.coords);
             let t = translation_back * rotated_point;
-            return [t.x, t.y, t.z];
+            [t.x, t.y, t.z]
         })
         .collect();
     rotated_points
@@ -447,12 +446,12 @@ pub fn parse_obj() -> (Vec<[f32; 3]>, Vec<Vec<usize>>) {
         } else if split_line[0] == "f" {
             let mut i_list = Vec::new();
             for i in 1..split_line.len() {
-                let vs: Vec<&str> = split_line[i].split("/").collect();
+                let vs: Vec<&str> = split_line[i].split('/').collect();
                 let v: usize = vs[0].parse().unwrap();
                 i_list.push(v - 1);
             }
             indices.push(i_list);
         }
     }
-    return (vertices, indices);
+    (vertices, indices)
 }
